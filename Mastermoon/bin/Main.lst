@@ -1,0 +1,1724 @@
+Apollo Guidance Computer (AGC) assembler, version 20100220, built Feb 20 2010
+(c)2003-2005,2009-2010 Ronald S. Burkey
+Refer to http://www.ibiblio.org/apollo/index.html for more information.
+Pass #1
+Pass #2
+000001,000001: 
+000002,000002:    4000                                          SETLOC   4000                          	#
+000003,000003: 
+000004,000004: 
+000005,000005:    4000                        RESTART                                                  	#
+000006,000006:    4000           00004                          INHINT                                 	# Turn off interrupts
+000007,000007:    4001           35075                          CA       O37774                        	# Schedule the first TIME3 interrupt
+000008,000008:    4002           54026                          TS       TIME3                         	#
+000009,000009:    4003           14054                          TCF      INIT                          	# Proceed with initialization
+000010,000010: 
+000011,000011: 
+000012,000012: $Vectors.agc                            # Add table of interrupt vectors
+000013,000001: 
+000014,000002:                                                                                         	# We begin with an interrupt vector table. There are 10 possible interrupts,
+000015,000003:                                                                                         	# plus the restart vector which comes first.
+000016,000004: 
+000017,000005: 
+000018,000006: 
+000019,000007:    4004           50017                          RESUME                                 	# T6RUPT
+000020,000008:    4005           14006                          NOOP                                   	#
+000021,000009:    4006           14007                          NOOP                                   	#
+000022,000010:    4007           14010                          NOOP                                   	#
+000023,000011: 
+000024,000012:    4010           50017                          RESUME                                 	# T5RUPT
+000025,000013:    4011           14012                          NOOP                                   	#
+000026,000014:    4012           14013                          NOOP                                   	#
+000027,000015:    4013           14014                          NOOP                                   	#
+000028,000016: 
+000029,000017:    4014           52011                          DXCH     ARUPT                         	# T3RUPT
+000030,000018:    4015           00006                          EXTEND                                 	# Back up A, L, and Q
+000031,000019:    4016           22012                          QXCH     QRUPT                         	#
+000032,000020:    4017           14733                          TCF      T3RUPT                        	# Transfer to the T3RUPT handler
+000033,000021: 
+000034,000022:    4020           52011                          DXCH     ARUPT                         	# T4RUPT
+000035,000023:    4021           00006                          EXTEND                                 	# Back up A, L, and Q
+000036,000024:    4022           22012                          QXCH     QRUPT                         	#
+000037,000025:    4023           14742                          TCF      T4RUPT                        	# Transfer to the T4RUPT handler
+000038,000026: 
+000039,000027: 
+000040,000028:    4024           52011                          DXCH     ARUPT                         	# KEYRUPT1, fired whenever a key is pressed
+000041,000029:    4025           00006                          EXTEND                                 	#
+000042,000030:    4026           22012                          QXCH     QRUPT                         	#
+000043,000031:    4027           14757                          TCF      KEYRUPT1                      	#
+000044,000032: 
+000045,000033:    4030           50017                          RESUME                                 	# KEYRUPT2
+000046,000034:    4031           14032                          NOOP                                   	#
+000047,000035:    4032           14033                          NOOP                                   	#
+000048,000036:    4033           14034                          NOOP                                   	#
+000049,000037: 
+000050,000038:    4034           50017                          RESUME                                 	# UPRUPT
+000051,000039:    4035           14036                          NOOP                                   	#
+000052,000040:    4036           14037                          NOOP                                   	#
+000053,000041:    4037           14040                          NOOP                                   	#
+000054,000042: 
+000055,000043:    4040           50017                          RESUME                                 	# DOWNRUPT
+000056,000044:    4041           14042                          NOOP                                   	#
+000057,000045:    4042           14043                          NOOP                                   	#
+000058,000046:    4043           14044                          NOOP                                   	#
+000059,000047: 
+000060,000048:    4044           50017                          RESUME                                 	# RADAR RUPT
+000061,000049:    4045           14046                          NOOP                                   	#
+000062,000050:    4046           14047                          NOOP                                   	#
+000063,000051:    4047           14050                          NOOP                                   	#
+000064,000052: 
+000065,000053:    4050           50017                          RESUME                                 	# RUPT10
+000066,000054:    4051           14052                          NOOP                                   	#
+000067,000055:    4052           14053                          NOOP                                   	#
+000068,000056:    4053           14054                          NOOP                                   	#
+000069,000057: 
+(End of include-file Vectors.agc, resuming Main.agc)
+000070,000013: 
+000071,000014:                                                                                         	# Initialization.
+000072,000015:    4054                        INIT                                                     	#
+000073,000016:    4054           30007                          CA       ZERO                          	# Load 0 to A
+000074,000017:    4055           54124                          TS       FIRST_RUN                     	# Store as first run
+000075,000018: 
+000076,000019:    4056                        INIT2                                                    	#
+000077,000020:    4056           30007                          CA       ZERO                          	#
+000078,000021:    4057           00006                          EXTEND                                 	#
+000079,000022:    4060           01011                          WRITE    CH11                          	# Clear any DSKY lights
+000080,000023: 
+000081,000024:    4061           04104                          TC       RESETALL                      	# Set all grid items to empty (-1)
+000082,000025:    4062           04631                          TC       DISPALL                       	# Display the 21 DSKY segments
+000083,000026: 
+000084,000027:    4063           35072                          CA       NOKEY                         	# Clear the keypad buffer variable
+000085,000028:    4064           54070                          TS       KEYBUF                        	# to initially hold an illegal keycode.
+000086,000029: 
+000087,000030:    4065           30124                          CA       FIRST_RUN                     	# Is this the first run?
+000088,000031:    4066           00006                          EXTEND                                 	#
+000089,000032:    4067           14071                          BZF      YES_FIRST                     	# Yes, wait for a key press to start
+000090,000033: 
+000091,000034:    4070           14240                          TCF      NEW_GAME                      	# No, launch a new game immediately                
+000092,000035:    4071                        YES_FIRST                                                 	#
+000093,000036: 
+000094,000037:    4071           35224                          CA       STAWAIT                       	# Set game status to listen for key presses
+000095,000038:    4072           54076                          TS       GM_STATE                      	#
+000096,000039:    4073           00003                          RELINT                                 	#
+000097,000040: 
+000098,000041:    4074                        MAINLOOP                                                 	#
+000099,000042:    4074           40067                          CS       NEWJOB                        	# Each loop, nudge hardware watchdog
+000100,000043: 
+000101,000044: 
+000102,000045:    4075                        CHKSTATE                                                 	#
+000103,000046: 
+000104,000047:    4075           50076                          INDEX    GM_STATE                      	# Index into game state jump table
+000105,000048:    4076           14077                          TCF      STATUSTBL                     	# Will jump to appropriate function below based on state
+000106,000049:    4077                        STATUSTBL                                                 	#
+000107,000050:    4077           15014                          TCF      CHECKKEY                      	# 0 - Listen for keypress and jump to appropriate function
+000108,000051:    4100           15003                          TCF      WAITKEY                       	# 1 - Wait for any key press to start game
+000109,000052:    4101           14454                          TCF      UPDATE_WIN                    	# 2 - Wait for any key press to restart game
+000110,000053:    4102           14074                          TCF      MAINLOOP                      	# 3 - Do nothing
+000111,000054:    4103           14056                          TCF      INIT2                         	# 4 - Start new game
+000112,000055: 
+000113,000056:                                                                                         	# Include the rest of the code modules below
+000114,000057: 
+000115,000058: 
+000116,000059: $Grid.agc
+000117,000001: 
+000118,000002:    4104                        RESETALL                                                 	#
+000119,000003: 
+000120,000004:    4104           35106                          CA       TWENTY1                       	# Set loop counter to 21
+000121,000005:    4105           54074                          TS       CUR_ID                        	#
+000122,000006:    4106                        RESETLOOP                                                 	#
+000123,000007: 
+000124,000008:    4106           00006                          EXTEND                                 	#
+000125,000009:    4107           26074                          DIM      CUR_ID                        	# Decrement id so we start at 20, end at 0
+000126,000010:    4110           35104                          CA       NEG_ONE                       	# Load -1 to A (empty cell)
+000127,000011:    4111           50074                          INDEX    CUR_ID                        	# Index by current loop count
+000128,000012:    4112           54131                          TS       VALUES                        	# Save -1 to empty this grid cell
+000129,000013: 
+000130,000014:    4113           30074                          CA       CUR_ID                        	# Load loop counter
+000131,000015:    4114           00006                          EXTEND                                 	#
+000132,000016:    4115           14117                          BZF      RESETEND                      	# If zero, we've cleared all of VALUES array
+000133,000017: 
+000134,000018:    4116           14106                          TCF      RESETLOOP                     	# Not zero, loop back for next cell
+000135,000019: 
+000136,000020: 
+000137,000021:    4117                        RESETEND                                                 	#
+000138,000022:    4117           00002                          RETURN                                 	# Return to Init
+000139,000023: 
+(End of include-file Grid.agc, resuming Main.agc)
+000140,000060: $CheckGuess.agc
+000141,000001: 
+000142,000002:    4120                        CHECKGUESS                                                 	# Player entered 5 digits, check against signal
+000143,000003: 
+000144,000004:                                                                                         	# better idea - check against the middle row, display correct/almost values
+000145,000005:                                                                                         	# so will need to copy guess down to middle row FIRST
+000146,000006:                                                                                         	# recalculate any time the guess displayed in middle row changes
+000147,000007: 
+000148,000008: 
+000149,000009:    4120           35236                          CA       DEC11                         	# Load 11 into A
+000150,000010:    4121           54112                          TS       CHECK_IDX                     	# Store as segment to check guess against signal
+000151,000011: 
+000152,000012:    4122           35230                          CA       DEC5                          	# Load 5 into A
+000153,000013:    4123           54103                          TS       END_ID                        	# Store to check against digit check index
+000154,000014: 
+000155,000015:    4124           30007                          CA       ZERO                          	# Load 0 into A
+000156,000016:    4125           54074                          TS       CUR_ID                        	# Index to compare values
+000157,000017:    4126           54122                          TS       RIGHT_TMP                     	# Number correct in right spot
+000158,000018:    4127           54123                          TS       ALMOST_TMP                    	# Number correct in wrong spot
+000159,000019: 
+000160,000020:    4130                        CHK_LOOP                                                 	#
+000161,000021: 
+000162,000022:    4130           50074                          INDEX    CUR_ID                        	# Load current index value
+000163,000023:    4131           30144                          CA       CHK_GRID                      	# Get player's guess in this slot	
+000164,000024:    4132           54125                          TS       GUESS_NOW                     	# Store in ram
+000165,000025: 
+000166,000026:    4133           50074                          INDEX    CUR_ID                        	# Load index again
+000167,000027:    4134           30113                          CA       SIGNAL                        	# Get signal num in this slot
+000168,000028:    4135           54126                          TS       SIG_NOW                       	# Store in ram
+000169,000029: 
+000170,000030: 
+000171,000031:    4136           00006                          EXTEND                                 	#
+000172,000032:    4137           60125                          SU       GUESS_NOW                     	# Subtract guess from signal
+000173,000033:    4140           00006                          EXTEND                                 	#
+000174,000034:    4141           14171                          BZF      IS_RIGHT                      	# If guess-signal=0, must be right
+000175,000035: 
+000176,000036: 
+000177,000037:    4142                        CHK_CNT                                                  	#
+000178,000038:                                                                                         	# Check count of guess in other segments
+000179,000039: 
+000180,000040:    4142           30007                          CA       ZERO                          	# Load 0 into A
+000181,000041:    4143           54110                          TS       ALM_ID                        	# Segment id to check versus guess
+000182,000042: 
+000183,000043:    4144                        SEG_LOOP                                                 	#
+000184,000044: 
+000185,000045:    4144           30110                          CA       ALM_ID                        	# Load current segment id
+000186,000046:    4145           00006                          EXTEND                                 	#
+000187,000047:    4146           60074                          SU       CUR_ID                        	# Subtract the guess index
+000188,000048:    4147           00006                          EXTEND                                 	#
+000189,000049:    4150           14162                          BZF      END_SLOOP                     	# If they are the same, don't check
+000190,000050: 
+000191,000051:    4151           50110                          INDEX    ALM_ID                        	# Index using segment id
+000192,000052:    4152           30113                          CA       SIGNAL                        	# Get the signal num in other slot
+000193,000053: 
+000194,000054:    4153           00006                          EXTEND                                 	#
+000195,000055:    4154           60125                          SU       GUESS_NOW                     	# Subtract the guess in main slot
+000196,000056:    4155           00006                          EXTEND                                 	#
+000197,000057:    4156           14160                          BZF      IS_ALMOST                     	# If result = 0, it matches
+000198,000058: 
+000199,000059:    4157           14162                          TCF      END_SLOOP                     	# They don't match, move to next segment
+000200,000060: 
+000201,000061:    4160                        IS_ALMOST                                                 	#
+000202,000062: 
+000203,000063:    4160           24123                          INCR     ALMOST_TMP                    	# Increase count of correct num in wrong slot
+000204,000064:    4161           14172                          TCF      ENDLOOP1                      	# We found one match, stop checking the rest
+000205,000065: 
+000206,000066:    4162                        END_SLOOP                                                 	#
+000207,000067: 
+000208,000068:    4162           24110                          INCR     ALM_ID                        	# Increase index of internal loop
+000209,000069:    4163           30110                          CA       ALM_ID                        	# Load index into a
+000210,000070: 
+000211,000071:    4164           00006                          EXTEND                                 	#
+000212,000072:    4165           60103                          SU       END_ID                        	# Subtract 5
+000213,000073:    4166           00006                          EXTEND                                 	#
+000214,000074:    4167           14172                          BZF      ENDLOOP1                      	# If index = 5, we are done
+000215,000075: 
+000216,000076:    4170           14144                          TCF      SEG_LOOP                      	# Not yet 5, loop back and check next digit (segment, slot, number, any others!??)
+000217,000077: 
+000218,000078: 
+000219,000079:    4171                        IS_RIGHT                                                 	#
+000220,000080: 
+000221,000081:    4171           24122                          INCR     RIGHT_TMP                     	# Increase count of correct numbers
+000222,000082: 
+000223,000083:    4172                        ENDLOOP1                                                 	#
+000224,000084: 
+000225,000085:    4172           24074                          INCR     CUR_ID                        	# Increase index of digit to check
+000226,000086:    4173           30074                          CA       CUR_ID                        	# Load new index
+000227,000087:    4174           00006                          EXTEND                                 	#
+000228,000088:    4175           60103                          SU       END_ID                        	# Subtract 5
+000229,000089:    4176           00006                          EXTEND                                 	#
+000230,000090:    4177           14202                          BZF      ALL5_CHK                      	# If next digit is 5
+000231,000091: 
+000232,000092:    4200           40067                          CS       NEWJOB                        	# Each loop, nudge hardware watchdog - prob not this
+000233,000093: 
+000234,000094:    4201           14130                          TCF      CHK_LOOP                      	# Not yet, do next digit
+000235,000095: 
+000236,000096:    4202                        ALL5_CHK                                                 	#
+000237,000097: 
+000238,000098:    4202           30122                          CA       RIGHT_TMP                     	# Load number correct
+000239,000099:    4203           54134                          TS       RIGHT_DIG                     	# Store in DSKY digit
+000240,000100: 
+000241,000101:    4204           00006                          EXTEND                                 	#
+000242,000102:    4205           60121                          SU       NUM_WIN                       	# Subtract 5
+000243,000103:    4206           00006                          EXTEND                                 	#
+000244,000104:    4207           14211                          BZF      DID_WIN                       	# if result = 0 then we won
+000245,000105: 
+000246,000106:    4210           14235                          TCF      NO_WIN                        	# no, we didn't win yet
+000247,000107: 
+000248,000108: 
+000249,000109:    4211                        DID_WIN                                                  	#
+000250,000110: 
+000251,000111:                                                                                         	# Do something here - flash all the lights?
+000252,000112:                                                                                         	# For now the game will stop accepting input
+000253,000113: 
+000254,000114:    4211           35225                          CA       STAWIN                        	# Load win state id into A
+000255,000115:    4212           54076                          TS       GM_STATE                      	# Store as new state
+000256,000116: 
+000257,000117:    4213           35077                          CA       S77777                        	# Load constant with all bits set
+000258,000118:    4214           00006                          EXTEND                                 	#
+000259,000119:    4215           01011                          WRITE    CH11                          	# Output to IO channel, that'll do!
+000260,000120: 
+000261,000121:    4216           30144                          CA       CHK_GRID                      	# Copy middle row to other rows
+000262,000122:    4217           54137                          TS       NUM_GRID                      	#
+000263,000123:    4220           54151                          TS       NUM_10                        	#
+000264,000124: 
+000265,000125:    4221           30145                          CA       NUM_6                         	#
+000266,000126:    4222           54152                          TS       NUM_11                        	#
+000267,000127:    4223           54140                          TS       NUM_1                         	#
+000268,000128: 
+000269,000129:    4224           30146                          CA       NUM_7                         	#
+000270,000130:    4225           54153                          TS       NUM_12                        	#
+000271,000131:    4226           54141                          TS       NUM_2                         	#
+000272,000132: 
+000273,000133:    4227           30147                          CA       NUM_8                         	#
+000274,000134:    4230           54154                          TS       NUM_13                        	#
+000275,000135:    4231           54142                          TS       NUM_3                         	#
+000276,000136: 
+000277,000137:    4232           30150                          CA       NUM_9                         	#
+000278,000138:    4233           54155                          TS       NUM_14                        	#
+000279,000139:    4234           54143                          TS       NUM_4                         	#
+000280,000140: 
+000281,000141: 
+000282,000142:    4235                        NO_WIN                                                   	#
+000283,000143: 
+000284,000144:    4235           30123                          CA       ALMOST_TMP                    	# Load number in wrong slot
+000285,000145:    4236           54136                          TS       ALMOST_DIG                    	# Store in DSKY digit
+000286,000146: 
+000287,000147:    4237           00002                          RETURN                                 	#
+000288,000148: 
+000289,000149: 
+(End of include-file CheckGuess.agc, resuming Main.agc)
+000290,000061: $NewGame.agc
+000291,000001:    4240                        NEW_GAME                                                 	#
+000292,000002: 
+000293,000003:    4240           35224                          CA       DEC1                          	# Load 1 into A (no immediate mode)
+000294,000004:    4241           54131                          TS       TURN_TEN                      	# Store as 'tens' digit for turns left
+000295,000005: 
+000296,000006:    4242           35225                          CA       DEC2                          	# Load 2 into A
+000297,000007:    4243           54132                          TS       TURN_DIG                      	# Store as ones (12 turns) - still gives opportunity for people to show off
+000298,000008:                                                                                         	# with their number of turns left
+000299,000009: 
+000300,000010:    4244           35243                          CA       DEC16                         	# Load 16 into A
+000301,000011:    4245           54120                          TS       ZERO_IDX                      	# Store in ram to use to check for 0 key press
+000302,000012: 
+000303,000013:    4246           35230                          CA       DEC5                          	# Load 5 into A
+000304,000014:    4247           54121                          TS       NUM_WIN                       	# Correct digits needed to win
+000305,000015: 
+000306,000016:    4250           30007                          CA       ZERO                          	# Load 0 into A
+000307,000017:    4251           54133                          TS       RIGHT_TEN                     	# Set current correct & almost guesses to zero
+000308,000018:    4252           54135                          TS       ALMOST_TEN                    	#
+000309,000019:    4253           54134                          TS       RIGHT_DIG                     	#
+000310,000020:    4254           54136                          TS       ALMOST_DIG                    	#
+000311,000021:    4255           54156                          TS       HIS_IDX                       	# Reset scrollable guess history index
+000312,000022: 
+000313,000023:    4256           35115                          CA       NEG5                          	# Load -5
+000314,000024:    4257           54157                          TS       MAX_IDX                       	# Reset maximum scrollable guess history index
+000315,000025: 
+000316,000026:    4260           35231                          CA       DEC6                          	# Load 6 into A
+000317,000027:    4261           54111                          TS       ENTER_IDX                     	# Store as segment for player to populate next
+000318,000028: 
+000319,000029:    4262           35104                          CA       NEG_ONE                       	# Load -1 into A
+000320,000030:    4263           54113                          TS       SIGNAL                        	# Initialise digits to -1 so wont match chosen digit
+000321,000031:    4264           54114                          TS       SIGNAL1                       	#
+000322,000032:    4265           54115                          TS       SIGNAL2                       	#
+000323,000033:    4266           54116                          TS       SIGNAL3                       	#
+000324,000034:    4267           54117                          TS       SIGNAL4                       	#
+000325,000035: 
+000326,000036: 
+000327,000037:    4270           35227                          CA       DEC4                          	# Load 4 into A
+000328,000038:    4271           54074                          TS       CUR_ID                        	# Store as id of signal digit to populate  
+000329,000039: 
+000330,000040:    4272                        SIG_LOOP                                                 	# Loop through each digit to be chosen
+000331,000041: 
+000332,000042:    4272           05062                          TC       RANDOM                        	# Get a random number from 0-9 into A
+000333,000043:    4273           54061                          TS       TEMPI                         	# Store in temp var
+000334,000044: 
+000335,000045:    4274           30074                          CA       CUR_ID                        	# Get current digit being chosen
+000336,000046:    4275           65224                          AD       DEC1                          	# Add 1
+000337,000047:    4276           54103                          TS       END_ID                        	# Store as first id to check against
+000338,000048: 
+000339,000049:    4277                        INT_LOOP                                                 	# Loop through the previous chosen digits
+000340,000050: 
+000341,000051:    4277           30103                          CA       END_ID                        	# Load id to check against
+000342,000052:    4300           00006                          EXTEND                                 	#
+000343,000053:    4301           60121                          SU       NUM_WIN                       	# Subtract 5
+000344,000054:    4302           00006                          EXTEND                                 	#
+000345,000055:    4303           14314                          BZF      NO_DUPS                       	# If we reached id 5, no dups were found
+000346,000056: 
+000347,000057:    4304           50103                          INDEX    END_ID                        	# Index by digit id within internal check
+000348,000058:    4305           30113                          CA       SIGNAL                        	# Get number chosen in slot
+000349,000059: 
+000350,000060:    4306           00006                          EXTEND                                 	#
+000351,000061:    4307           60061                          SU       TEMPI                         	# Subtract the proposed number for this slot
+000352,000062:    4310           00006                          EXTEND                                 	#
+000353,000063:    4311           14272                          BZF      SIG_LOOP                      	# Found a dup, try again
+000354,000064: 
+000355,000065:    4312           24103                          INCR     END_ID                        	# Increase id for dup check
+000356,000066:    4313           14277                          TCF      INT_LOOP                      	# Look at next slot
+000357,000067: 
+000358,000068:    4314                        NO_DUPS                                                  	#
+000359,000069: 
+000360,000070:    4314           30061                          CA       TEMPI                         	# Get the chosen number
+000361,000071:    4315           50074                          INDEX    CUR_ID                        	# Index by slot to populate
+000362,000072:    4316           54113                          TS       SIGNAL                        	# Store in the signal array
+000363,000073: 
+000364,000074:                                                                                         	#INDEX 		CUR_ID		# Index by slot
+000365,000075:                                                                                         	#TS 		NUM_10		# Store in DSKY for debugging
+000366,000076: 
+000367,000077:    4317           30074                          CA       CUR_ID                        	# Get slot index
+000368,000078:    4320           00006                          EXTEND                                 	#
+000369,000079:    4321           14325                          BZF      PICKED_ALL                    	# Done slot 0, all picked
+000370,000080: 
+000371,000081:    4322           00006                          EXTEND                                 	#
+000372,000082:    4323           26074                          DIM      CUR_ID                        	# Decrement slot id
+000373,000083: 
+000374,000084:    4324           14272                          TCF      SIG_LOOP                      	# Do next slot
+000375,000085: 
+000376,000086:    4325                        PICKED_ALL                                                 	#
+000377,000087: 
+000378,000088:    4325           04631                          TC       DISPALL                       	# Display the new game state
+000379,000089: 
+000380,000090:    4326           35223                          CA       STAINPUT                      	# Set game state to listen for key presses and respond
+000381,000091:    4327           54076                          TS       GM_STATE                      	#
+000382,000092: 
+000383,000093:    4330                        CLR_HIS                                                  	#
+000384,000094: 
+000385,000095:    4330           35120                          CA       HS_LS_IDX                     	# Get index of last history slot
+000386,000096:    4331           54074                          TS       CUR_ID                        	# store in variable
+000387,000097: 
+000388,000098:    4332                        CLR_LOOP                                                 	#
+000389,000099: 
+000390,000100:    4332           35104                          CA       NEG_ONE                       	# Load -1 into A	
+000391,000101:    4333           50074                          INDEX    CUR_ID                        	# Index by current history slot
+000392,000102:    4334           54160                          TS       PREV_GUESS                    	# Store -1 to history array
+000393,000103: 
+000394,000104:    4335           30074                          CA       CUR_ID                        	# Load current index
+000395,000105:    4336           00006                          EXTEND                                 	#
+000396,000106:    4337           14344                          BZF      CLR_DONE                      	# If it's 0, we are done
+000397,000107: 
+000398,000108:    4340           00006                          EXTEND                                 	#
+000399,000109:    4341           26074                          DIM      CUR_ID                        	# Decrement current id
+000400,000110: 
+000401,000111:    4342           40067                          CS       NEWJOB                        	# Each loop, nudge hardware watchdog 		
+000402,000112: 
+000403,000113:    4343           14332                          TCF      CLR_LOOP                      	# Do next slot in history array
+000404,000114: 
+000405,000115:    4344                        CLR_DONE                                                 	#
+000406,000116: 
+000407,000117: 
+000408,000118:    4344           00003                          RELINT                                 	# Enable interrupts
+000409,000119:    4345           24124                          INCR     FIRST_RUN                     	# Set flag that game has run once
+000410,000120: 
+000411,000121:    4346           14074                          TCF      MAINLOOP                      	# Go back to main loop
+(End of include-file NewGame.agc, resuming Main.agc)
+000412,000062: $NumPress.agc
+000413,000001: 
+000414,000002:    4347                        NUM_PRESS                                                 	#
+000415,000003: 
+000416,000004:    4347           50111                          INDEX    ENTER_IDX                     	# Get index of segment to populate next	
+000417,000005:    4350           54131                          TS       VALUES                        	# Store key number pressed in array
+000418,000006: 
+000419,000007:    4351           00006                          EXTEND                                 	#
+000420,000008:    4352           60120                          SU       ZERO_IDX                      	# Subtract 16 from key press index
+000421,000009:    4353           00006                          EXTEND                                 	#
+000422,000010:    4354           14356                          BZF      ZERO_PRESS                    	# If 0, zero key was pressed	
+000423,000011: 
+000424,000012:    4355           14361                          TCF      NOT_ZERO                      	# Not zero, skip
+000425,000013: 
+000426,000014:    4356                        ZERO_PRESS                                                 	#
+000427,000015: 
+000428,000016:    4356           30007                          CA       ZERO                          	# Load 0 into A
+000429,000017:    4357           50111                          INDEX    ENTER_IDX                     	# Get index of segment to populate
+000430,000018:    4360           54131                          TS       VALUES                        	# Override value saved earlier with 0
+000431,000019: 
+000432,000020:    4361                        NOT_ZERO                                                 	#
+000433,000021: 
+000434,000022:    4361           04631                          TC       DISPALL                       	# Need to display all as digits are drawn in pairs	
+000435,000023:    4362           24111                          INCR     ENTER_IDX                     	# Move to next index
+000436,000024: 
+000437,000025:    4363           35236                          CA       DEC11                         	# Load 11 into A
+000438,000026:    4364           54061                          TS       TEMPI                         	# Store in temp variable for subtraction
+000439,000027: 
+000440,000028:    4365           30111                          CA       ENTER_IDX                     	# What's the next index?
+000441,000029:    4366           00006                          EXTEND                                 	#
+000442,000030:    4367           60061                          SU       TEMPI                         	# Subtract 11 from it
+000443,000031:    4370           00006                          EXTEND                                 	#
+000444,000032:    4371           14373                          BZF      CHECKNEW                      	# If A = 0, we entered 5 digits already
+000445,000033: 
+000446,000034:    4372           14074                          TCF      MAINLOOP                      	# Return to main loop
+000447,000035: 
+000448,000036: 
+000449,000037:    4373                        CHECKNEW                                                 	#
+000450,000038: 
+000451,000039:    4373           04465                          TC       STOREGUESS                    	# Copy guess down to row 2, shift guess history array
+000452,000040:    4374           04120                          TC       CHECKGUESS                    	# Check accuracy of guess
+000453,000041:    4375           14376                          TCF      DO_TURNS                      	#
+000454,000042: 
+(End of include-file NumPress.agc, resuming Main.agc)
+000455,000063: $UpdateTurn.agc
+000456,000001: 
+000457,000002:    4376                        DO_TURNS                                                 	#
+000458,000003: 
+000459,000004:    4376           30131                          CA       TURN_TEN                      	# Load number of tens in turns left
+000460,000005:    4377           00006                          EXTEND                                 	#
+000461,000006:    4400           14414                          BZF      TENS_ZERO                     	# Tens is zero, just decrease ones
+000462,000007: 
+000463,000008:    4401           30132                          CA       TURN_DIG                      	# Load number of ones in turn count
+000464,000009:    4402           00006                          EXTEND                                 	#
+000465,000010:    4403           14407                          BZF      WRAP_TEN                      	# If zero, decrease tens
+000466,000011: 
+000467,000012:    4404           00006                          EXTEND                                 	#
+000468,000013:    4405           26132                          DIM      TURN_DIG                      	# Decrease ones
+000469,000014: 
+000470,000015:    4406           14451                          TCF      DONE_TURNS                    	# We know tens > 0, skip the rest
+000471,000016: 
+000472,000017:    4407                        WRAP_TEN                                                 	#
+000473,000018: 
+000474,000019:    4407           00006                          EXTEND                                 	#
+000475,000020:    4410           26131                          DIM      TURN_TEN                      	# Decrease number of tens
+000476,000021: 
+000477,000022:    4411           35234                          CA       DEC9                          	# Load 9 into A
+000478,000023:    4412           54132                          TS       TURN_DIG                      	# Store into turn ones
+000479,000024: 
+000480,000025:    4413           14451                          TCF      DONE_TURNS                    	# We know we can't be out of turns, skip rest
+000481,000026: 
+000482,000027:    4414                        TENS_ZERO                                                 	#
+000483,000028: 
+000484,000029:    4414           00006                          EXTEND                                 	#
+000485,000030:    4415           26132                          DIM      TURN_DIG                      	# Decrease number in ones	
+000486,000031: 
+000487,000032:    4416           30076                          CA       GM_STATE                      	# Get game state
+000488,000033:    4417           00006                          EXTEND                                 	#
+000489,000034:    4420           14422                          BZF      NOT_WON                       	# Still playing	
+000490,000035: 
+000491,000036:    4421           14452                          TCF      IS_GM_OVR                     	# We won, don't check game over
+000492,000037: 
+000493,000038:    4422                        NOT_WON                                                  	#
+000494,000039:    4422           30132                          CA       TURN_DIG                      	# Load ones into A
+000495,000040:    4423           00006                          EXTEND                                 	#
+000496,000041:    4424           14426                          BZF      NONE_LEFT                     	# If ones is zero
+000497,000042: 
+000498,000043:    4425           14451                          TCF      DONE_TURNS                    	# Ones > 0, not out of turns
+000499,000044: 
+000500,000045:    4426                        NONE_LEFT                                                 	#
+000501,000046: 
+000502,000047:    4426           35122                          CA       OPP_ERR                       	# Load bit pattern for operator error light
+000503,000048:    4427           00006                          EXTEND                                 	#
+000504,000049:    4430           05011                          WOR      CH11                          	# Turn bit on
+000505,000050: 
+000506,000051:    4431           35226                          CA       STALOSE                       	# Load status id for lost condition
+000507,000052:    4432           54076                          TS       GM_STATE                      	# Store in game state var
+000508,000053: 
+000509,000054:    4433           35100                          CAF      GM_TIME                       	# Get timer value to show game over 
+000510,000055:    4434           54027                          TS       TIME4                         	# Set interrupt to fire when timer (counts up) wraps to 0
+000511,000056: 
+000512,000057:    4435           04104                          TC       RESETALL                      	# Set all grid items to empty (-1)
+000513,000058: 
+000514,000059:    4436           30113                          CA       SIGNAL                        	# Copy correct answer to bottom row
+000515,000060:    4437           54151                          TS       NUM_10                        	#
+000516,000061: 
+000517,000062:    4440           30114                          CA       SIGNAL1                       	#
+000518,000063:    4441           54152                          TS       NUM_11                        	#
+000519,000064: 
+000520,000065:    4442           30115                          CA       SIGNAL2                       	#
+000521,000066:    4443           54153                          TS       NUM_12                        	#
+000522,000067: 
+000523,000068:    4444           30116                          CA       SIGNAL3                       	#
+000524,000069:    4445           54154                          TS       NUM_13                        	#
+000525,000070: 
+000526,000071:    4446           30117                          CA       SIGNAL4                       	#
+000527,000072:    4447           54155                          TS       NUM_14                        	#
+000528,000073: 
+000529,000074:    4450           14452                          TCF      IS_GM_OVR                     	# Don't update guess history, who cares, you lost!
+000530,000075: 
+000531,000076:    4451                        DONE_TURNS                                                 	#
+000532,000077: 
+000533,000078:    4451           04542                          TC       DISP_HIST                     	# Update guess history	
+000534,000079: 
+000535,000080:    4452                        IS_GM_OVR                                                 	#
+000536,000081: 
+000537,000082:    4452           04631                          TC       DISPALL                       	# Refresh DSKY
+000538,000083: 
+000539,000084:    4453           14074                          TCF      MAINLOOP                      	# Return to main loop
+000540,000085: 
+(End of include-file UpdateTurn.agc, resuming Main.agc)
+000541,000064: $WinState.agc
+000542,000001:    4454                        UPDATE_WIN                                                 	#
+000543,000002: 
+000544,000003:    4454           35072                          CA       NOKEY                         	# Load key code for 'no key pressed'
+000545,000004:    4455           00006                          EXTEND                                 	#
+000546,000005:    4456           60070                          SU       KEYBUF                        	# Subtract the key code read
+000547,000006:    4457           00006                          EXTEND                                 	#
+000548,000007:    4460           14464                          BZF      NOTYET                        	# If zero, nothing pressed, continue waiting
+000549,000008: 
+000550,000009:    4461           35072                          CA       NOKEY                         	# Clear keyboard buffer so not carried into game
+000551,000010:    4462           54070                          TS       KEYBUF                        	#
+000552,000011: 
+000553,000012:    4463           14056                          TCF      INIT2                         	# Jump to set up new game
+000554,000013: 
+000555,000014:    4464                        NOTYET                                                   	#
+000556,000015: 
+000557,000016:    4464           14074                          TCF      MAINLOOP                      	#
+000558,000017: 
+000559,000018: 
+000560,000019: 
+000561,000020: 
+(End of include-file WinState.agc, resuming Main.agc)
+000562,000065: $StoreGuess.agc
+000563,000001:    4465                        STOREGUESS                                                 	#
+000564,000002: 
+000565,000003:    4465           35231                          CA       DEC6                          	# Load 6 into A
+000566,000004:    4466           54111                          TS       ENTER_IDX                     	# Store as segment for player to populate next
+000567,000005: 
+000568,000006:    4467           35117                          CA       CP_ST_IDX                     	# Load index to start from
+000569,000007:    4470           54127                          TS       SRC_IDX                       	# Store into source index variable
+000570,000008: 
+000571,000009:    4471           65230                          AD       DEC5                          	# Add 5
+000572,000010:    4472           54130                          TS       DES_IDX                       	# Store in destination index variable
+000573,000011: 
+000574,000012:    4473           30157                          CA       MAX_IDX                       	# Load current max history index
+000575,000013:    4474           65230                          AD       DEC5                          	# Increase by 5
+000576,000014:    4475           54157                          TS       MAX_IDX                       	# Store back in memory
+000577,000015: 
+000578,000016:    4476           30007                          CA       ZERO                          	# Load 0 into A
+000579,000017:    4477           54156                          TS       HIS_IDX                       	# Reset a previous scrolled list
+000580,000018: 
+000581,000019:    4500                        COPY_LOOP                                                 	#
+000582,000020: 
+000583,000021: 
+000584,000022:    4500           50127                          INDEX    SRC_IDX                       	# Index using source
+000585,000023:    4501           30160                          CA       PREV_GUESS                    	# Get value from array
+000586,000024: 
+000587,000025:    4502           50130                          INDEX    DES_IDX                       	# Index using destination
+000588,000026:    4503           54160                          TS       PREV_GUESS                    	# Store value into array
+000589,000027: 
+000590,000028:    4504           30127                          CA       SRC_IDX                       	# Load index just copied
+000591,000029:    4505           00006                          EXTEND                                 	#
+000592,000030:    4506           14514                          BZF      COPY_DONE                     	# If it's zero, we're done	
+000593,000031: 
+000594,000032:    4507           00006                          EXTEND                                 	#
+000595,000033:    4510           26127                          DIM      SRC_IDX                       	# Reduce source index by 1
+000596,000034: 
+000597,000035:    4511           00006                          EXTEND                                 	#
+000598,000036:    4512           26130                          DIM      DES_IDX                       	# Reduce dest index by 1
+000599,000037: 
+000600,000038:    4513           14500                          TCF      COPY_LOOP                     	# Keep going
+000601,000039: 
+000602,000040:    4514                        COPY_DONE                                                 	#
+000603,000041: 
+000604,000042:    4514           30137                          CA       NUM_GRID                      	# Copy guess in row 1 into prev guess history slot 0
+000605,000043:    4515           54160                          TS       PREV_GUESS                    	#
+000606,000044:    4516           54144                          TS       CHK_GRID                      	# and to row below of DSKY
+000607,000045: 
+000608,000046:    4517           30140                          CA       NUM_1                         	# Copy guess in row 1 into prev guess history slot 0
+000609,000047:    4520           54161                          TS       PREV_1                        	#
+000610,000048:    4521           54145                          TS       NUM_6                         	# and to row below of DSKY
+000611,000049: 
+000612,000050:    4522           30141                          CA       NUM_2                         	# Copy guess in row 1 into prev guess history slot 0
+000613,000051:    4523           54162                          TS       PREV_2                        	#
+000614,000052:    4524           54146                          TS       NUM_7                         	# and to row below of DSKY
+000615,000053: 
+000616,000054:    4525           30142                          CA       NUM_3                         	# Copy guess in row 1 into prev guess history slot 0
+000617,000055:    4526           54163                          TS       PREV_3                        	#
+000618,000056:    4527           54147                          TS       NUM_8                         	# and to row below of DSKY
+000619,000057: 
+000620,000058:    4530           30143                          CA       NUM_4                         	# Copy guess in row 1 into prev guess history slot 0
+000621,000059:    4531           54164                          TS       PREV_4                        	#
+000622,000060:    4532           54150                          TS       NUM_9                         	# and to row below of DSKY
+000623,000061: 
+000624,000062:    4533                        CLEARGUESS                                                 	#
+000625,000063: 
+000626,000064:    4533           35104                          CA       NEG_ONE                       	#
+000627,000065:    4534           54137                          TS       NUM_GRID                      	#
+000628,000066:    4535           54140                          TS       NUM_1                         	#
+000629,000067:    4536           54141                          TS       NUM_2                         	#
+000630,000068:    4537           54142                          TS       NUM_3                         	#
+000631,000069:    4540           54143                          TS       NUM_4                         	#
+000632,000070: 
+000633,000071:    4541           00002                          RETURN                                 	#
+000634,000072: 
+(End of include-file StoreGuess.agc, resuming Main.agc)
+000635,000066: $DisplayHistory.agc
+000636,000001:    4542                        DISP_HIST                                                 	#
+000637,000002: 
+000638,000003:    4542           35236                          CA       DEC11                         	# Load 11 into A
+000639,000004:    4543           54130                          TS       DES_IDX                       	# Store as destination index within DSKY array
+000640,000005: 
+000641,000006:    4544           30156                          CA       HIS_IDX                       	# Load current start history index
+000642,000007:    4545           54127                          TS       SRC_IDX                       	# Store as source index within history array
+000643,000008:    4546           65235                          AD       DEC10                         	# Add 10
+000644,000009:    4547           54103                          TS       END_ID                        	# Store as the end id to check when done
+000645,000010: 
+000646,000011:    4550                        DISP_LOOP                                                 	#
+000647,000012: 
+000648,000013:    4550           50127                          INDEX    SRC_IDX                       	# Get current source index
+000649,000014:    4551           30160                          CA       PREV_GUESS                    	# Get value from guess history
+000650,000015: 
+000651,000016:    4552           50130                          INDEX    DES_IDX                       	# Get current DSKY dest index
+000652,000017:    4553           54131                          TS       VALUES                        	# Save value to DSKY array
+000653,000018: 
+000654,000019:    4554           24127                          INCR     SRC_IDX                       	# Increment source index
+000655,000020:    4555           24130                          INCR     DES_IDX                       	# Increment dest index
+000656,000021: 
+000657,000022:    4556           30127                          CA       SRC_IDX                       	# Load source index
+000658,000023:    4557           00006                          EXTEND                                 	#
+000659,000024:    4560           60103                          SU       END_ID                        	# Subtract end id
+000660,000025:    4561           00006                          EXTEND                                 	#
+000661,000026:    4562           14564                          BZF      DIS_DONE                      	# If zero, finished copying
+000662,000027: 
+000663,000028:    4563           14550                          TCF      DISP_LOOP                     	# Not done, loop round again
+000664,000029: 
+000665,000030: 
+000666,000031:    4564                        DIS_DONE                                                 	#
+000667,000032: 
+000668,000033:    4564           00002                          RETURN                                 	# return to caller
+(End of include-file DisplayHistory.agc, resuming Main.agc)
+000669,000067: $Scroll.agc
+000670,000001:    4565                        SCROLL_UP                                                 	#
+000671,000002: 
+000672,000003:    4565           30156                          CA       HIS_IDX                       	# Load current start index
+000673,000004:    4566           00006                          EXTEND                                 	#
+000674,000005:    4567           60157                          SU       MAX_IDX                       	# Subtract maximum
+000675,000006:    4570           00006                          EXTEND                                 	#
+000676,000007:    4571           14601                          BZF      CANTSCROLL                    	# If 0, already at max, don't scroll
+000677,000008: 
+000678,000009:    4572           30156                          CA       HIS_IDX                       	# Load start index again
+000679,000010:    4573           65230                          AD       DEC5                          	# Add five to move to next row
+000680,000011:    4574           54156                          TS       HIS_IDX                       	# Store back in history index
+000681,000012: 
+000682,000013:    4575                        SCR_UPDT                                                 	#
+000683,000014: 
+000684,000015:    4575           04542                          TC       DISP_HIST                     	# Update guess history	
+000685,000016:    4576           04120                          TC       CHECKGUESS                    	# Check if middle row matches 
+000686,000017:    4577           04631                          TC       DISPALL                       	# Refresh DSKY	
+000687,000018: 
+000688,000019:    4600           14074                          TCF      MAINLOOP                      	#
+000689,000020: 
+000690,000021: 
+000691,000022:    4601                        CANTSCROLL                                                 	#
+000692,000023: 
+000693,000024:    4601           14074                          TCF      MAINLOOP                      	#
+000694,000025: 
+000695,000026: 
+000696,000027:    4602                        SCROLLDOWN                                                 	#
+000697,000028: 
+000698,000029:    4602           35230                          CA       DEC5                          	# Load 5 into A
+000699,000030:    4603           54061                          TS       TEMPI                         	# Store in temp var
+000700,000031: 
+000701,000032:    4604           30156                          CA       HIS_IDX                       	# Load current start index
+000702,000033:    4605           00006                          EXTEND                                 	#
+000703,000034:    4606           14601                          BZF      CANTSCROLL                    	# If history index = 0, can't scroll
+000704,000035: 
+000705,000036:    4607           00006                          EXTEND                                 	#
+000706,000037:    4610           60061                          SU       TEMPI                         	# Subtract 5 to move to prev row - can't use constant from fixed mem for SU
+000707,000038:    4611           54156                          TS       HIS_IDX                       	# Store back in history index var
+000708,000039: 
+000709,000040:    4612           14575                          TCF      SCR_UPDT                      	# Update display with scrolled data
+(End of include-file Scroll.agc, resuming Main.agc)
+000710,000068: $ClearDigit.agc
+000711,000001:    4613                        CLR_DIGIT                                                 	#
+000712,000002: 
+000713,000003:    4613           35231                          CA       DEC6                          	#
+000714,000004:    4614           54061                          TS       TEMPI                         	#
+000715,000005: 
+000716,000006:    4615           30111                          CA       ENTER_IDX                     	#
+000717,000007:    4616           00006                          EXTEND                                 	#
+000718,000008:    4617           60061                          SU       TEMPI                         	#
+000719,000009:    4620           00006                          EXTEND                                 	#
+000720,000010:    4621           14630                          BZF      NO_CLR                        	#
+000721,000011: 
+000722,000012:    4622           00006                          EXTEND                                 	#
+000723,000013:    4623           26111                          DIM      ENTER_IDX                     	#
+000724,000014: 
+000725,000015:    4624           35104                          CA       NEG_ONE                       	#
+000726,000016:    4625           50111                          INDEX    ENTER_IDX                     	#
+000727,000017:    4626           54131                          TS       VALUES                        	#
+000728,000018: 
+000729,000019:    4627           04631                          TC       DISPALL                       	#
+000730,000020: 
+000731,000021:    4630                        NO_CLR                                                   	#
+000732,000022: 
+000733,000023: 
+000734,000024:    4630           14074                          TCF      MAINLOOP                      	#
+(End of include-file ClearDigit.agc, resuming Main.agc)
+000735,000069: $Display.agc
+000736,000001: 
+000737,000002: 
+000738,000003:                                                                                         	# DISPLAY ALL 21 SEGMENTS IN THE DSKY
+000739,000004: 
+000740,000005:    4631                        DISPALL                                                  	#
+000741,000006:    4631           00006                          EXTEND                                 	#
+000742,000007:    4632           22071                          QXCH     RET_ADR                       	# Store return address because we TC elsewhere
+000743,000008: 
+000744,000009:    4633           30007                          CA       ZERO                          	# Do top left cell first as its digit doesn't have a segment partner
+000745,000010:    4634           54074                          TS       CUR_ID                        	# Use id for top left cell
+000746,000011:    4635           04653                          TC       DISPNUM                       	# Call function to display this digit
+000747,000012: 
+000748,000013:    4636           24074                          INCR     CUR_ID                        	# Move onto next digit. The rest all come in pairs.
+000749,000014: 
+000750,000015:    4637                        SEGLOOP                                                  	#
+000751,000016: 
+000752,000017:    4637           04653                          TC       DISPNUM                       	# Call function to display next two digits.
+000753,000018: 
+000754,000019:    4640           24074                          INCR     CUR_ID                        	# Inc cell id, it's now +2 from before display call.
+000755,000020:    4641           35106                          CA       TWENTY1                       	# Load id of last cell + 1
+000756,000021:    4642           00006                          EXTEND                                 	#
+000757,000022:    4643           60074                          SU       CUR_ID                        	# Subtract current cell id
+000758,000023:    4644           00006                          EXTEND                                 	#
+000759,000024:    4645           14650                          BZF      DONE15                        	# If zero, we displayed all cells
+000760,000025: 
+000761,000026:    4646           54067                          TS       NEWJOB                        	# Nudge watchdog as display code fairly slow
+000762,000027: 
+000763,000028:    4647           14637                          TCF      SEGLOOP                       	# Loop back to draw the next two segments
+000764,000029: 
+000765,000030: 
+000766,000031:    4650                        DONE15                                                   	#
+000767,000032:    4650           00006                          EXTEND                                 	#
+000768,000033:    4651           22071                          QXCH     RET_ADR                       	# Retrieve our return address
+000769,000034:    4652           00002                          RETURN                                 	# Return to caller (multiple places)
+000770,000035: 
+000771,000036: 
+000772,000037: 
+000773,000038:    4653                        DISPNUM                                                  	# CUR_ID is the index of next segment to display (0=left prog, 20 = digit 5 bottom row)
+000774,000039:                                                                                         	# Print value held in VALUES array to correct segment
+000775,000040: 
+000776,000041:                                                                                         	# Data is sent to the DSKY via Channel 10 two digits at a time.
+000777,000042:                                                                                         	# Bits 10-14 select which pair of digits we want to draw
+000778,000043:                                                                                         	# Bits 0-4 selects which digit to draw on the right segment
+000779,000044:                                                                                         	# Bits 5-9 selects which digit to draw on the left segment
+000780,000045: 
+000781,000046:    4653           30007                          CA       ZEROES                        	# Load 0 into accumulator from a fixed rom constant
+000782,000047:    4654           54105                          TS       DIGIT_L                       	# Reset left digit calculation to 0 (empty)
+000783,000048:    4655           54106                          TS       DIGIT_R                       	# Reset right digit calculation to 0 (empty)
+000784,000049: 
+000785,000050:    4656           50074                          INDEX    CUR_ID                        	# Index next instruction by segment id
+000786,000051:    4657           35163                          CA       SEG_0                         	# Get which pair of digits this segment belongs to
+000787,000052:    4660           54075                          TS       SEG_OUT                       	# Save ID to RAM
+000788,000053: 
+000789,000054:    4661           50075                          INDEX    SEG_OUT                       	# Index next instruction by segment pair id
+000790,000055:    4662           35210                          CA       SEGCODE                       	# Get value required in bits 10-14 to select pair, using id
+000791,000056:    4663           54104                          TS       DSKY_OUT                      	# Save to RAM to use later when we have the digit data
+000792,000057: 
+000793,000058:    4664           50074                          INDEX    CUR_ID                        	# Index next instruction by segment id
+000794,000059:    4665           30131                          CA       VALUES                        	# Get the value in RAM we want to display here
+000795,000060:    4666           54061                          TS       TEMPI                         	# Save to temporary RAM variable
+000796,000061: 
+000797,000062:    4667           50074                          INDEX    CUR_ID                        	# Index next instruction by segment id
+000798,000063:    4670           35136                          CA       LEFTRIGHT                     	# Get whether this segment is left or right of its pair
+000799,000064:    4671           00006                          EXTEND                                 	# Extend to use a new Block 2 AGC instruction
+000800,000065:    4672           14711                          BZF      SKIPLEFT                      	# If zero (is right), skip the left digit
+000801,000066: 
+000802,000067:    4673                        CALCLEFT                                                 	#
+000803,000068:    4673           50061                          INDEX    TEMPI                         	# Index next instruction by our digit (0-9)
+000804,000069:    4674           35124                          CA       DSP0                          	# Get the 5-bit code for this digit to send to DSKY
+000805,000070:    4675           54022                          TS       CYL                           	# Transfer it to the shift left register
+000806,000071:    4676           30022                          CA       CYL                           	# Shift left no 1
+000807,000072:    4677           30022                          CA       CYL                           	# Shift left no 2
+000808,000073:    4700           30022                          CA       CYL                           	# Shift left no 3
+000809,000074:    4701           30022                          CA       CYL                           	# Shift left no 4
+000810,000075:    4702           30022                          CA       CYL                           	# Shift left no 5 (is now in bits 5-9 for the left digit)
+000811,000076:    4703           54105                          TS       DIGIT_L                       	# Save to RAM to use later
+000812,000077: 
+000813,000078:    4704           24074                          INCR     CUR_ID                        	# Move onto the right segment of the pair
+000814,000079:    4705           50074                          INDEX    CUR_ID                        	# Index by new segment id
+000815,000080:    4706           30131                          CA       VALUES                        	# Get value to display on right digit
+000816,000081:    4707           54106                          TS       DIGIT_R                       	# Save to RAM to use later
+000817,000082: 
+000818,000083:    4710           14713                          TCF      DIDLEFT                       	# Skip the code to set only the right digit if left not drawn
+000819,000084: 
+000820,000085:    4711                        SKIPLEFT                                                 	#
+000821,000086:    4711           30061                          CA       TEMPI                         	# Load the value for this digit to draw on the right of pair
+000822,000087:    4712           54106                          TS       DIGIT_R                       	# Store to RAM
+000823,000088: 
+000824,000089:    4713                        DIDLEFT                                                  	#
+000825,000090: 
+000826,000091:    4713           50106                          INDEX    DIGIT_R                       	# Index by value of right digit
+000827,000092:    4714           35124                          CA       DSP0                          	# Get the 5-bit code for this digit to send to DSKY
+000828,000093: 
+000829,000094:    4715                        OUTPUT                                                   	#
+000830,000095:    4715           60104                          AD       DSKY_OUT                      	# Add bits 10-14
+000831,000096:    4716           60105                          AD       DIGIT_L                       	# Add bits 5-9
+000832,000097:    4717           00006                          EXTEND                                 	# Extend in order to use I/O channel instruction
+000833,000098:    4720           01010                          WRITE    CH10                          	# Send the value to channel 10 to display on DKSY
+000834,000099: 
+000835,000100:    4721           00002                          RETURN                                 	# Return from subroutine
+000836,000101: 
+000837,000102: 
+000838,000103: 
+000839,000104:                                                                                         	#Hold up CPU to delay between movement of numbers to give animation effect
+000840,000105: 
+000841,000106:    4722           01750        IODELAYT          DEC      1000       B-14               	# This constant is stored in fixed ROM
+000842,000107: 
+000843,000108:    4723                        IODELAY                                                  	#
+000844,000109:    4723           54061                          TS       TEMPI                         	# Save accumulator.
+000845,000110:    4724           14725                          NOOP                                   	# Do thing for a bit
+000846,000111:    4725           34722                          CA       IODELAYT                      	# Load delay into A
+000847,000112:    4726           54067                          TS       NEWJOB                        	# Nudge watchdog as we're in a busy loop
+000848,000113:    4727           10000                          CCS      A                             	# Decrement a and compare
+000849,000114:    4730           14726                          TCF      -2                            	# >0 so jump back up to TS NEWJOB
+000850,000115:    4731           30061                          CA       TEMPI                         	# Restore accumulator.
+000851,000116:    4732           00002                          RETURN                                 	# Return to where delay was asked for
+(End of include-file Display.agc, resuming Main.agc)
+000852,000070: $Interrupts.agc
+000853,000001: 
+000854,000002:    4733                                          BLOCK    02                            	#
+000855,000003:    4733                        T3RUPT                                                   	#
+000856,000004:    4733           35075                          CAF      O37774                        	# Schedule another TIME3 interrupt
+000857,000005:    4734           54026                          TS       TIME3                         	# ... and don't do anything else, yet...
+000858,000006: 
+000859,000007:    4735           24073                          INCR     COUNTER                       	# Increment counter for random number generation
+000860,000008: 
+000861,000009:    4736           52011        RESUME            DXCH     ARUPT                         	# Restore A, L, and Q, and exit the interrupt
+000862,000010:    4737           00006                          EXTEND                                 	#
+000863,000011:    4740           22012                          QXCH     QRUPT                         	#
+000864,000012:    4741           50017                          RESUME                                 	#
+000865,000013: 
+000866,000014: 
+000867,000015:    4742                        T4RUPT                                                   	#
+000868,000016: 
+000869,000017:    4742           35224                          CA       DEC1                          	# Load 1 into A
+000870,000018:    4743           54027                          TS       TIME4                         	# Set timer so it will take ages to fire again
+000871,000019: 
+000872,000020:    4744           35226                          CA       STALOSE                       	# Load lose status id into A
+000873,000021:    4745           54061                          TS       TEMPI                         	# Store in temp var
+000874,000022: 
+000875,000023:    4746           30076                          CA       GM_STATE                      	# Load current game state
+000876,000024:    4747           00006                          EXTEND                                 	#
+000877,000025:    4750           60061                          SU       TEMPI                         	# Subtract lose status
+000878,000026:    4751           00006                          EXTEND                                 	#
+000879,000027:    4752           14754                          BZF      DID_LOSE                      	# If A = 0, we did lose
+000880,000028: 
+000881,000029:    4753           14736                          TCF      RESUME                        	# Timer triggered elsewhere, forget about it
+000882,000030: 
+000883,000031:    4754                        DID_LOSE                                                 	#
+000884,000032: 
+000885,000033:    4754           35227                          CA       STAINIT                       	# Get status id to fire init on next loop
+000886,000034:    4755           54076                          TS       GM_STATE                      	# Store as game state
+000887,000035: 
+000888,000036:    4756           14736                          TCF      RESUME                        	# Jump to code to return from interrupt
+(End of include-file Interrupts.agc, resuming Main.agc)
+000889,000071: $Input.agc
+000890,000001:    4757                        KEYRUPT1                                                 	# Triggered automatically when a key is pressed
+000891,000002: 
+000892,000003:    4757           35072                          CA       NOKEY                         	# Load code for 'NO KEY PRESSED'
+000893,000004:    4760           54070                          TS       KEYBUF                        	# Clear key buffer so we don't persist presses from when they are not wanted
+000894,000005: 
+000895,000006:    4761           30072                          CA       ACTIVE                        	# Load whether game is active
+000896,000007:    4762           00006                          EXTEND                                 	#
+000897,000008:    4763           14770                          BZF      CANREAD                       	# If not active, we can accept key press to start the game
+000898,000009: 
+000899,000010:    4764           30076                          CA       GM_STATE                      	# Load game state into A
+000900,000011:    4765           00006                          EXTEND                                 	#
+000901,000012:    4766           14770                          BZF      CANREAD                       	# If not 'check_key', we don't care about key presses
+000902,000013: 
+000903,000014:    4767           14774                          TCF      EXITRUPT                      	# Exit, we're not listening for key presses while processing happens
+000904,000015: 
+000905,000016:    4770                        CANREAD                                                  	#
+000906,000017: 
+000907,000018:    4770           00006                          EXTEND                                 	#
+000908,000019:    4771           00015                          READ     CH15                          	# Read I/O channel that contains the keycode
+000909,000020:    4772           75074                          MASK     LOW5                          	# Retain only lower 5 bits
+000910,000021:    4773           54070                          TS       KEYBUF                        	# Store into keyboard buffer variable for main loop to pick up
+000911,000022: 
+000912,000023:    4774                        EXITRUPT                                                 	#
+000913,000024:    4774           30007                          CA       ZEROES                        	# Clear the input channel
+000914,000025:    4775           00006                          EXTEND                                 	#
+000915,000026:    4776           01015                          WRITE    CH15                          	#
+000916,000027: 
+000917,000028:    4777           52011                          DXCH     ARUPT                         	# Restore A, L, and Q, and exit the interrupt
+000918,000029:    5000           00006                          EXTEND                                 	#
+000919,000030:    5001           22012                          QXCH     QRUPT                         	#
+000920,000031:    5002           50017                          RESUME                                 	#
+000921,000032: 
+000922,000033: 
+000923,000034: 
+000924,000035: 
+000925,000036:    5003                        WAITKEY                                                  	# Waiting for any key press to start game
+000926,000037:                                                                                         	# If we didn't wait, the RNG would always start in same state
+000927,000038: 
+000928,000039:    5003           35072                          CA       NOKEY                         	# Load key code for 'no key pressed'
+000929,000040:    5004           00006                          EXTEND                                 	#
+000930,000041:    5005           60070                          SU       KEYBUF                        	# Subtract the key code read
+000931,000042:    5006           00006                          EXTEND                                 	#
+000932,000043:    5007           15013                          BZF      WAITMORE                      	# If zero, nothing pressed, continue waiting
+000933,000044: 
+000934,000045:    5010           35072                          CA       NOKEY                         	# Clear keyboard buffer so not carried into game
+000935,000046:    5011           54070                          TS       KEYBUF                        	#
+000936,000047: 
+000937,000048:    5012           14240                          TCF      NEW_GAME                      	#Jump to set up new game
+000938,000049: 
+000939,000050:    5013                        WAITMORE                                                 	#
+000940,000051:    5013           14074                          TCF      MAINLOOP                      	#
+000941,000052: 
+000942,000053: 
+000943,000054: 
+000944,000055: 
+000945,000056:    5014                        CHECKKEY                                                 	# Check whether key press in buffer from interrupt
+000946,000057: 
+000947,000058:    5014           35072                          CA       NOKEY                         	# Load key code for nothing pressed into A
+000948,000059:    5015           56070                          XCH      KEYBUF                        	# Swap A and buffer. A is now key code and buffer is clear.
+000949,000060:    5016           50000                          INDEX    A                             	# Index using the keycode
+000950,000061:    5017           15020                          TCF      KEYTABL                       	# Into a jump table with jumps for each possible key
+000951,000062: 
+000952,000063:                                                                                         	# We ignore all presses except for 2, 4, 6, 8 for game control and ENTER/RESTART to reset game.
+000953,000064:    5020                        KEYTABL                                                  	#
+000954,000065:    5020           15061                          TCF      ENDKYCK                       	# unused
+000955,000066:    5021           14347                          TCF      NUM_PRESS                     	# 1
+000956,000067:    5022           14347                          TCF      NUM_PRESS                     	# 2
+000957,000068:    5023           14347                          TCF      NUM_PRESS                     	# 3
+000958,000069:    5024           14347                          TCF      NUM_PRESS                     	# 4
+000959,000070:    5025           14347                          TCF      NUM_PRESS                     	# 5
+000960,000071:    5026           14347                          TCF      NUM_PRESS                     	# 6
+000961,000072:    5027           14347                          TCF      NUM_PRESS                     	# 7
+000962,000073:    5030           14347                          TCF      NUM_PRESS                     	# 8
+000963,000074:    5031           14347                          TCF      NUM_PRESS                     	# 9
+000964,000075:    5032           15061                          TCF      ENDKYCK                       	# unused
+000965,000076:    5033           15061                          TCF      ENDKYCK                       	# unused
+000966,000077:    5034           15061                          TCF      ENDKYCK                       	# unused
+000967,000078:    5035           15061                          TCF      ENDKYCK                       	# unused
+000968,000079:    5036           15061                          TCF      ENDKYCK                       	# unused
+000969,000080:    5037           15061                          TCF      ENDKYCK                       	# unused
+000970,000081:    5040           14347                          TCF      NUM_PRESS                     	# 0 - index 16!
+000971,000082:    5041           14613                          TCF      CLR_DIGIT                     	# VERB
+000972,000083:    5042           14056                          TCF      INIT2                         	# RSET
+000973,000084:    5043           15061                          TCF      ENDKYCK                       	# unused
+000974,000085:    5044           15061                          TCF      ENDKYCK                       	# unused
+000975,000086:    5045           15061                          TCF      ENDKYCK                       	# unused
+000976,000087:    5046           15061                          TCF      ENDKYCK                       	# unused
+000977,000088:    5047           15061                          TCF      ENDKYCK                       	# unused
+000978,000089:    5050           15061                          TCF      ENDKYCK                       	# unused
+000979,000090:    5051           15061                          TCF      ENDKYCK                       	# KEY REL
+000980,000091:    5052           14565                          TCF      SCROLL_UP                     	# +
+000981,000092:    5053           14602                          TCF      SCROLLDOWN                    	# -	not sure which way round makes sense yet
+000982,000093:    5054           15061                          TCF      ENDKYCK                       	# ENTR
+000983,000094:    5055           15061                          TCF      ENDKYCK                       	# unused
+000984,000095:    5056           14613                          TCF      CLR_DIGIT                     	# CLR
+000985,000096:    5057           15061                          TCF      ENDKYCK                       	# NOUN
+000986,000097:    5060           15061                          TCF      ENDKYCK                       	# NOKEY
+000987,000098: 
+000988,000099:    5061                        ENDKYCK                                                  	#
+000989,000100:    5061           14074                          TCF      MAINLOOP                      	# When we do nothing, just exit back to main loop to wait for a valid key
+000990,000101: 
+(End of include-file Input.agc, resuming Main.agc)
+000991,000072: $Random.agc
+000992,000001: 
+000993,000002:    5062                        RANDOM                                                   	#
+000994,000003: 
+000995,000004:                                                                                         	# I tried various methods for generating 'random' numbers. Most traditional methods are designed
+000996,000005:                                                                                         	# for 8-bit or 16-bit hardware, and the various xor 'magic numbers' are particular to that paradigm.
+000997,000006:                                                                                         	# I'm not patient enough to find values that might work. Using a fast-moving index into a lookup
+000998,000007:                                                                                         	# table should be 'good enough' for a game.
+000999,000008: 
+001000,000009: 
+001001,000010:    5062           30025                          CA       TIME1                         	# Load a register that is updated very often by the hardware
+001002,000011:    5063           60073                          AD       COUNTER                       	# Add previous value of counter in case we were so quick TIME1 didn't change
+001003,000012:    5064           75107                          MASK     MASK128                       	# Mask value so now between 0-127.
+001004,000013:    5065           54073                          TS       COUNTER                       	# Store this as new counter
+001005,000014:    5066           50073                          INDEX    COUNTER                       	# Index using value between 0-127
+001006,000015:    5067           35331                          CA       RAND1                         	# Into a table of random numbers between 0 and 9 (generated in Excel)
+001007,000016:    5070           24073                          INCR     COUNTER                       	# Move counter on one so next index unlikely to be the same
+001008,000017: 
+001009,000018: 
+001010,000019:    5071           00002                          RETURN                                 	#
+001011,000020: 
+001012,000021: 
+(End of include-file Random.agc, resuming Main.agc)
+001013,000073: $Constants.agc
+001014,000001:                                                                                         	# The AGC does not support 'immediate mode', where you can embed a fixed value into the operand.
+001015,000002:                                                                                         	# So where you might do lda #48 in 6502 to load 48 into A, here 48 must be present somewhere in RAM
+001016,000003:                                                                                         	# or ROM so that it has an address we can reference in 'CA MYCONSTANT'.
+001017,000004:                                                                                         	# So these constants are stored in the ROM itself as data to be lookup up when needed.
+001018,000005: 
+001019,000006:                                                                                         	#-----------------------------------------------------------------------
+001020,000007:                                                                                         	# Constants and read-only memory.
+001021,000008: 
+001022,000009:                                                                                         	# Names of CPU registers.
+001023,000010:    5072                        A                 EQUALS   0                             	#
+001024,000011:    5072                        L                 EQUALS   1                             	# L AND Q ARE BOTH CHANNELS AND REGISTERS.
+001025,000012:    5072                        Q                 EQUALS   2                             	#
+001026,000013:    5072                        EBANK             EQUALS   3                             	#
+001027,000014:    5072                        FBANK             EQUALS   4                             	#
+001028,000015:    5072                        Z                 EQUALS   5                             	# ADJACENT TO FBANK AND BBANK FOR DXCH Z
+001029,000016:    5072                        BBANK             EQUALS   6                             	# (DTCB) AND DXCH FBANK (DTCF).
+001030,000017:    5072                        ZEROES            EQUALS   7                             	# REGISTER 7 IS A ZERO-SOURCE, USED BY ZL.
+001031,000018:    5072                        ARUPT             EQUALS   10                            	# INTERRUPT STORAGE.
+001032,000019:    5072                        LRUPT             EQUALS   11                            	#
+001033,000020:    5072                        QRUPT             EQUALS   12                            	#
+001034,000021:    5072                        SAMPTIME          EQUALS   13                            	# SAMPLED TIME 1 & 2.
+001035,000022:    5072                        ZRUPT             EQUALS   15                            	# (13 AND 14 ARE SPARES.)
+001036,000023:    5072                        BANKRUPT          EQUALS   16                            	# USUALLY HOLDS FBANK OR BBANK.
+001037,000024:    5072                        BRUPT             EQUALS   17                            	# RESUME ADDRESS AS WELL.
+001038,000025:    5072                        CYR               EQUALS   20                            	#
+001039,000026:    5072                        SR                EQUALS   21                            	#
+001040,000027:    5072                        CYL               EQUALS   22                            	#
+001041,000028:    5072                        EDOP              EQUALS   23                            	#
+001042,000029: 
+001043,000030: 
+001044,000031:    5072                        CH10              EQUALS   10                            	#
+001045,000032:    5072                        CH11              EQUALS   11                            	#
+001046,000033:    5072                        CH12              EQUALS   12                            	#
+001047,000034:    5072                        CH15              EQUALS   15                            	#
+001048,000035:    5072                        CH32              EQUALS   32                            	#
+001049,000036:    5072                        CH13              EQUALS   13                            	#
+001050,000037:    5072           00040        NOKEY             OCT      40                            	#
+001051,000038: 
+001052,000039:    5073           00000        BIT15             DEC      16384      B-14               	#
+001053,000040:    5074  0000007               ZERO              EQUALS   ZEROES                        	#
+001054,000041: 
+001055,000042: 
+001056,000043:    5074           00037        LOW5              OCT      37                            	#
+001057,000044: 
+001058,000045:    5075           37774        O37774            OCT      37774                         	#
+001059,000046:    5076           37777        O37777            OCT      37777                         	#
+001060,000047:    5077           77677        S77777            OCT      77677                         	#
+001061,000048:    5100           37000        GM_TIME           OCT      37000                         	# guessing a bit here, can't be arsed to look it up
+001062,000049: 
+001063,000050:    5101           00012        TEN               DEC      10         B-14               	#
+001064,000051:    5102           00034        CLEARBTN          DEC      28         B-14               	#
+001065,000052:    5103           00022        RESETBTN          DEC      18         B-14               	#
+001066,000053:    5104           77776        NEG_ONE           DEC      -1         B-14               	#
+001067,000054: 
+001068,000055:    5105           00024        TWENTY            DEC      20         B-14               	#
+001069,000056:    5106           00025        TWENTY1           DEC      21         B-14               	#
+001070,000057:    5107           00177        MASK128           DEC      127        B-14               	#
+001071,000058:    5110           00017        MASK15            DEC      15         B-14               	#
+001072,000059:    5111           00400        TWO56             DEC      256        B-14               	#
+001073,000060:    5112           00016        FOURTEEN          DEC      14         B-14               	#
+001074,000061: 
+001075,000062:    5113           77776        NEG1              DEC      -1         B-14               	#
+001076,000063:    5114           77775        NEG2              DEC      -2         B-14               	#
+001077,000064:    5115           77772        NEG5              DEC      -5         B-14               	#
+001078,000065:    5116           00176        BIT5              DEC      126        B-14               	#
+001079,000066: 
+001080,000067: 
+001081,000068:    5117           00061        CP_ST_IDX          DEC      49         B-14               	#
+001082,000069: 
+001083,000070:    5120           00073        HS_LS_IDX          DEC      59         B-14               	#
+001084,000071:    5121           00062        HS_MX_IDX          DEC      50         B-14               	#
+001085,000072: 
+001086,000073:    5122           00100        OPP_ERR           OCT      00100                         	#
+001087,000074: 
+001088,000075: 
+001089,000076:                                                                                         	# pause to research lights on DSKY
+(End of include-file Constants.agc, resuming Main.agc)
+001090,000074: $Tables.agc
+001091,000001: 
+001092,000002:                                                                                         	# Because constants are held in fixed memory (ROM), we can organise them consecutively
+001093,000003:                                                                                         	# and use them as handy lookup tables
+001094,000004: 
+001095,000005:                                                                                         	# For each possible digit (blank, 0-9), the 5-bit code we need to send to the DSKY.
+001096,000006: 
+001097,000007:    5123           00000        DSPBLANK          OCT      0                             	#
+001098,000008:    5124           00025        DSP0              OCT      25                            	#
+001099,000009:    5125           00003        DSP1              OCT      3                             	#
+001100,000010:    5126           00031        DSP2              OCT      31                            	#
+001101,000011:    5127           00033        DSP3              OCT      33                            	#
+001102,000012:    5130           00017        DSP4              OCT      17                            	#
+001103,000013:    5131           00036        DSP5              OCT      36                            	#
+001104,000014:    5132           00034        DSP6              OCT      34                            	#
+001105,000015:    5133           00023        DSP7              OCT      23                            	#
+001106,000016:    5134           00035        DSP8              OCT      35                            	#
+001107,000017:    5135           00037        DSP9              OCT      37                            	#
+001108,000018: 
+001109,000019:                                                                                         	# For each of the 21 display digits, is it left (1) or right (0) of the pair?
+001110,000020: 
+001111,000021:    5136           00001        LEFTRIGHT          DEC      1          B-14               	#
+001112,000022:    5137           00000        LR1               DEC      0          B-14               	#
+001113,000023:    5140           00001        LR2               DEC      1          B-14               	#
+001114,000024:    5141           00000        LR3               DEC      0          B-14               	#
+001115,000025:    5142           00001        LR4               DEC      1          B-14               	#
+001116,000026:    5143           00000        LR5               DEC      0          B-14               	#
+001117,000027:    5144           00000        LR6               DEC      0          B-14               	#
+001118,000028:    5145           00001        LR7               DEC      1          B-14               	#
+001119,000029:    5146           00000        LR8               DEC      0          B-14               	#
+001120,000030:    5147           00001        LR9               DEC      1          B-14               	#
+001121,000031:    5150           00000        LR10              DEC      0          B-14               	#
+001122,000032:    5151           00001        LR11              DEC      1          B-14               	#
+001123,000033:    5152           00000        LR12              DEC      0          B-14               	#
+001124,000034:    5153           00001        LR13              DEC      1          B-14               	#
+001125,000035:    5154           00000        LR14              DEC      0          B-14               	#
+001126,000036:    5155           00001        LR15              DEC      1          B-14               	#
+001127,000037:    5156           00000        LR16              DEC      0          B-14               	#
+001128,000038:    5157           00001        LR17              DEC      1          B-14               	#
+001129,000039:    5160           00000        LR18              DEC      0          B-14               	#
+001130,000040:    5161           00001        LR19              DEC      1          B-14               	#
+001131,000041:    5162           00000        LR20              DEC      0          B-14               	#
+001132,000042: 
+001133,000043:                                                                                         	# For each of the 21 display digits, which pair of segments does it belong to?
+001134,000044: 
+001135,000045:    5163           00000        SEG_0             DEC      00         B-14               	#
+001136,000046:    5164           00000        SEG_1             DEC      00         B-14               	#
+001137,000047:    5165           00001        SEG_2             DEC      01         B-14               	#
+001138,000048:    5166           00001        SEG_3             DEC      01         B-14               	#
+001139,000049:    5167           00002        SEG_4             DEC      02         B-14               	#
+001140,000050:    5170           00002        SEG_5             DEC      02         B-14               	#
+001141,000051:    5171           00003        SEG_6             DEC      03         B-14               	#
+001142,000052:    5172           00004        SEG_7             DEC      04         B-14               	#
+001143,000053:    5173           00004        SEG_8             DEC      04         B-14               	#
+001144,000054:    5174           00005        SEG_9             DEC      05         B-14               	#
+001145,000055:    5175           00005        SEG_10            DEC      05         B-14               	#
+001146,000056:    5176           00006        SEG_11            DEC      06         B-14               	#
+001147,000057:    5177           00006        SEG_12            DEC      06         B-14               	#
+001148,000058:    5200           00007        SEG_13            DEC      07         B-14               	#
+001149,000059:    5201           00007        SEG_14            DEC      07         B-14               	#
+001150,000060:    5202           00010        SEG_15            DEC      08         B-14               	#
+001151,000061:    5203           00010        SEG_16            DEC      08         B-14               	#
+001152,000062:    5204           00011        SEG_17            DEC      09         B-14               	#
+001153,000063:    5205           00011        SEG_18            DEC      09         B-14               	#
+001154,000064:    5206           00012        SEG_19            DEC      10         B-14               	#
+001155,000065:    5207           00012        SEG_20            DEC      10         B-14               	#
+001156,000066: 
+001157,000067: 
+001158,000068:                                                                                         	# Lookup bits 10-14 to select the segement pair in Channel 10 WRITE
+001159,000069: 
+001160,000070: 
+001161,000071:    5210           54000        SEGCODE           OCT      54000                         	#
+001162,000072:    5211           50000        VERBLR            OCT      50000                         	#
+001163,000073:    5212           44000        NOUNLR            OCT      44000                         	#
+001164,000074:    5213           40000        TOP1              OCT      40000                         	#
+001165,000075:    5214           34000        TOP23             OCT      34000                         	#
+001166,000076:    5215           30000        TOP45             OCT      30000                         	#
+001167,000077:    5216           24000        MID12             OCT      24000                         	#
+001168,000078:    5217           20000        MID34             OCT      20000                         	#
+001169,000079:    5220           14000        MID5BOT1          OCT      14000                         	#
+001170,000080:    5221           10000        BOT23             OCT      10000                         	#
+001171,000081:    5222           04000        BOT45             OCT      4000                          	#
+001172,000082: 
+001173,000083: 
+001174,000084: 
+001175,000085:                                                                                         	# Decimal table for easy loading into A
+001176,000086: 
+001177,000087:    5223           00000        DIGITS            DEC      0          B-14               	#
+001178,000088:    5224           00001        DEC1              DEC      1          B-14               	#
+001179,000089:    5225           00002        DEC2              DEC      2          B-14               	#
+001180,000090:    5226           00003        DEC3              DEC      3          B-14               	#
+001181,000091:    5227           00004        DEC4              DEC      4          B-14               	#
+001182,000092:    5230           00005        DEC5              DEC      5          B-14               	#
+001183,000093:    5231           00006        DEC6              DEC      6          B-14               	#
+001184,000094:    5232           00007        DEC7              DEC      7          B-14               	#
+001185,000095:    5233           00010        DEC8              DEC      8          B-14               	#
+001186,000096:    5234           00011        DEC9              DEC      9          B-14               	#
+001187,000097:    5235           00012        DEC10             DEC      10         B-14               	#
+001188,000098:    5236           00013        DEC11             DEC      11         B-14               	#
+001189,000099:    5237           00014        DEC12             DEC      12         B-14               	#
+001190,000100:    5240           00015        DEC13             DEC      13         B-14               	#
+001191,000101:    5241           00016        DEC14             DEC      14         B-14               	#
+001192,000102:    5242           00017        DEC15             DEC      15         B-14               	#
+001193,000103:    5243           00020        DEC16             DEC      16         B-14               	#
+001194,000104:    5244           00021        DEC17             DEC      17         B-14               	#
+001195,000105:    5245           00022        DEC18             DEC      18         B-14               	#
+001196,000106:    5246           00023        DEC19             DEC      19         B-14               	#
+001197,000107: 
+001198,000108:                                                                                         	# Game state constants, re-using some of the above
+001199,000109: 
+001200,000110:    5247     5223               STAINPUT          EQUALS   DIGITS                        	#
+001201,000111:    5247     5224               STAWAIT           EQUALS   DEC1                          	#
+001202,000112:    5247     5225               STAWIN            EQUALS   DEC2                          	#
+001203,000113:    5247     5226               STALOSE           EQUALS   DEC3                          	#
+001204,000114:    5247     5227               STAINIT           EQUALS   DEC4                          	#
+001205,000115: 
+001206,000116:                                                                                         	# For each grid row, which segment ID does it start at?
+001207,000117: 
+001208,000118:    5247           00006        ROW_STRT          DEC      6          B-14               	#
+001209,000119:    5250           00013        ROW_STRT2          DEC      11         B-14               	#
+001210,000120:    5251           00020        ROW_STRT3          DEC      16         B-14               	#
+001211,000121: 
+001212,000122:                                                                                         	# For each grid column, which segment ID does it start at?
+001213,000123: 
+001214,000124:    5252           00006        COL_STRT          DEC      6          B-14               	#
+001215,000125:    5253           00007        COL_STRT2          DEC      7          B-14               	#
+001216,000126:    5254           00010        COL_STRT3          DEC      8          B-14               	#
+001217,000127:    5255           00011        COL_STRT4          DEC      9          B-14               	#
+001218,000128:    5256           00012        COL_STRT5          DEC      10         B-14               	#
+001219,000129: 
+001220,000130:                                                                                         	# For each grid cell, which column does it belong to (0-5 ignored)
+001221,000131: 
+001222,000132:    5257           00000        GRID_COL          DEC      0          B-14               	#
+001223,000133:    5260           00000        GRID_CM5          DEC      0          B-14               	#
+001224,000134:    5261           00000        GRID_CM4          DEC      0          B-14               	#
+001225,000135:    5262           00000        GRID_CM3          DEC      0          B-14               	#
+001226,000136:    5263           00000        GRID_CM2          DEC      0          B-14               	#
+001227,000137:    5264           00000        GRID_CM1          DEC      0          B-14               	#
+001228,000138:    5265           00000        GRID_C0           DEC      0          B-14               	#
+001229,000139:    5266           00001        GRID_C1           DEC      1          B-14               	#
+001230,000140:    5267           00002        GRID_C2           DEC      2          B-14               	#
+001231,000141:    5270           00003        GRID_C3           DEC      3          B-14               	#
+001232,000142:    5271           00004        GRID_C4           DEC      4          B-14               	#
+001233,000143:    5272           00000        GRID_C5           DEC      0          B-14               	#
+001234,000144:    5273           00001        GRID_C6           DEC      1          B-14               	#
+001235,000145:    5274           00002        GRID_C7           DEC      2          B-14               	#
+001236,000146:    5275           00003        GRID_C8           DEC      3          B-14               	#
+001237,000147:    5276           00004        GRID_C9           DEC      4          B-14               	#
+001238,000148:    5277           00000        GRID_C10          DEC      0          B-14               	#
+001239,000149:    5300           00001        GRID_C11          DEC      1          B-14               	#
+001240,000150:    5301           00002        GRID_C12          DEC      2          B-14               	#
+001241,000151:    5302           00003        GRID_C13          DEC      3          B-14               	#
+001242,000152:    5303           00004        GRID_C14          DEC      4          B-14               	#
+001243,000153: 
+001244,000154:                                                                                         	# For each grid cell, which ro wdoes it belong to (0-5 ignored)
+001245,000155: 
+001246,000156:    5304           00000        GRID_ROW          DEC      0          B-14               	#
+001247,000157:    5305           00000        GRID_RM5          DEC      0          B-14               	#
+001248,000158:    5306           00000        GRID_RM4          DEC      0          B-14               	#
+001249,000159:    5307           00000        GRID_RM3          DEC      0          B-14               	#
+001250,000160:    5310           00000        GRID_RM2          DEC      0          B-14               	#
+001251,000161:    5311           00000        GRID_RM1          DEC      0          B-14               	#
+001252,000162:    5312           00000        GRID_R0           DEC      0          B-14               	#
+001253,000163:    5313           00000        GRID_R1           DEC      0          B-14               	#
+001254,000164:    5314           00000        GRID_R2           DEC      0          B-14               	#
+001255,000165:    5315           00000        GRID_R3           DEC      0          B-14               	#
+001256,000166:    5316           00000        GRID_R4           DEC      0          B-14               	#
+001257,000167:    5317           00001        GRID_R5           DEC      1          B-14               	#
+001258,000168:    5320           00001        GRID_R6           DEC      1          B-14               	#
+001259,000169:    5321           00001        GRID_R7           DEC      1          B-14               	#
+001260,000170:    5322           00001        GRID_R8           DEC      1          B-14               	#
+001261,000171:    5323           00001        GRID_R9           DEC      1          B-14               	#
+001262,000172:    5324           00002        GRID_R10          DEC      2          B-14               	#
+001263,000173:    5325           00002        GRID_R11          DEC      2          B-14               	#
+001264,000174:    5326           00002        GRID_R12          DEC      2          B-14               	#
+001265,000175:    5327           00002        GRID_R13          DEC      2          B-14               	#
+001266,000176:    5330           00002        GRID_R14          DEC      2          B-14               	#
+001267,000177: 
+001268,000178:                                                                                         	# Table of 128 'random' numbers between 0-9 that we can index into
+001269,000179: 
+001270,000180:    5331           00005        RAND1             DEC      5          B-14               	#
+001271,000181:    5332           00002        RAND2             DEC      2          B-14               	#
+001272,000182:    5333           00010        RAND3             DEC      8          B-14               	#
+001273,000183:    5334           00001        RAND4             DEC      1          B-14               	#
+001274,000184:    5335           00007        RAND5             DEC      7          B-14               	#
+001275,000185:    5336           00003        RAND6             DEC      3          B-14               	#
+001276,000186:    5337           00000        RAND7             DEC      0          B-14               	#
+001277,000187:    5340           00011        RAND8             DEC      9          B-14               	#
+001278,000188:    5341           00006        RAND9             DEC      6          B-14               	#
+001279,000189:    5342           00004        RAND10            DEC      4          B-14               	#
+001280,000190:    5343           00001        RAND11            DEC      1          B-14               	#
+001281,000191:    5344           00005        RAND12            DEC      5          B-14               	#
+001282,000192:    5345           00003        RAND13            DEC      3          B-14               	#
+001283,000193:    5346           00007        RAND14            DEC      7          B-14               	#
+001284,000194:    5347           00010        RAND15            DEC      8          B-14               	#
+001285,000195:    5350           00002        RAND16            DEC      2          B-14               	#
+001286,000196:    5351           00006        RAND17            DEC      6          B-14               	#
+001287,000197:    5352           00000        RAND18            DEC      0          B-14               	#
+001288,000198:    5353           00004        RAND19            DEC      4          B-14               	#
+001289,000199:    5354           00011        RAND20            DEC      9          B-14               	#
+001290,000200:    5355           00007        RAND21            DEC      7          B-14               	#
+001291,000201:    5356           00006        RAND22            DEC      6          B-14               	#
+001292,000202:    5357           00002        RAND23            DEC      2          B-14               	#
+001293,000203:    5360           00005        RAND24            DEC      5          B-14               	#
+001294,000204:    5361           00001        RAND25            DEC      1          B-14               	#
+001295,000205:    5362           00010        RAND26            DEC      8          B-14               	#
+001296,000206:    5363           00003        RAND27            DEC      3          B-14               	#
+001297,000207:    5364           00011        RAND28            DEC      9          B-14               	#
+001298,000208:    5365           00000        RAND29            DEC      0          B-14               	#
+001299,000209:    5366           00004        RAND30            DEC      4          B-14               	#
+001300,000210:    5367           00006        RAND31            DEC      6          B-14               	#
+001301,000211:    5370           00007        RAND32            DEC      7          B-14               	#
+001302,000212:    5371           00005        RAND33            DEC      5          B-14               	#
+001303,000213:    5372           00002        RAND34            DEC      2          B-14               	#
+001304,000214:    5373           00011        RAND35            DEC      9          B-14               	#
+001305,000215:    5374           00001        RAND36            DEC      1          B-14               	#
+001306,000216:    5375           00004        RAND37            DEC      4          B-14               	#
+001307,000217:    5376           00010        RAND38            DEC      8          B-14               	#
+001308,000218:    5377           00003        RAND39            DEC      3          B-14               	#
+001309,000219:    5400           00000        RAND40            DEC      0          B-14               	#
+001310,000220:    5401           00002        RAND41            DEC      2          B-14               	#
+001311,000221:    5402           00006        RAND42            DEC      6          B-14               	#
+001312,000222:    5403           00007        RAND43            DEC      7          B-14               	#
+001313,000223:    5404           00005        RAND44            DEC      5          B-14               	#
+001314,000224:    5405           00001        RAND45            DEC      1          B-14               	#
+001315,000225:    5406           00003        RAND46            DEC      3          B-14               	#
+001316,000226:    5407           00011        RAND47            DEC      9          B-14               	#
+001317,000227:    5410           00010        RAND48            DEC      8          B-14               	#
+001318,000228:    5411           00004        RAND49            DEC      4          B-14               	#
+001319,000229:    5412           00000        RAND50            DEC      0          B-14               	#
+001320,000230:    5413           00005        RAND51            DEC      5          B-14               	#
+001321,000231:    5414           00007        RAND52            DEC      7          B-14               	#
+001322,000232:    5415           00006        RAND53            DEC      6          B-14               	#
+001323,000233:    5416           00002        RAND54            DEC      2          B-14               	#
+001324,000234:    5417           00010        RAND55            DEC      8          B-14               	#
+001325,000235:    5420           00001        RAND56            DEC      1          B-14               	#
+001326,000236:    5421           00003        RAND57            DEC      3          B-14               	#
+001327,000237:    5422           00004        RAND58            DEC      4          B-14               	#
+001328,000238:    5423           00011        RAND59            DEC      9          B-14               	#
+001329,000239:    5424           00000        RAND60            DEC      0          B-14               	#
+001330,000240:    5425           00007        RAND61            DEC      7          B-14               	#
+001331,000241:    5426           00005        RAND62            DEC      5          B-14               	#
+001332,000242:    5427           00002        RAND63            DEC      2          B-14               	#
+001333,000243:    5430           00006        RAND64            DEC      6          B-14               	#
+001334,000244:    5431           00001        RAND65            DEC      1          B-14               	#
+001335,000245:    5432           00010        RAND66            DEC      8          B-14               	#
+001336,000246:    5433           00004        RAND67            DEC      4          B-14               	#
+001337,000247:    5434           00003        RAND68            DEC      3          B-14               	#
+001338,000248:    5435           00011        RAND69            DEC      9          B-14               	#
+001339,000249:    5436           00000        RAND70            DEC      0          B-14               	#
+001340,000250:    5437           00006        RAND71            DEC      6          B-14               	#
+001341,000251:    5440           00002        RAND72            DEC      2          B-14               	#
+001342,000252:    5441           00005        RAND73            DEC      5          B-14               	#
+001343,000253:    5442           00007        RAND74            DEC      7          B-14               	#
+001344,000254:    5443           00010        RAND75            DEC      8          B-14               	#
+001345,000255:    5444           00001        RAND76            DEC      1          B-14               	#
+001346,000256:    5445           00004        RAND77            DEC      4          B-14               	#
+001347,000257:    5446           00011        RAND78            DEC      9          B-14               	#
+001348,000258:    5447           00003        RAND79            DEC      3          B-14               	#
+001349,000259:    5450           00000        RAND80            DEC      0          B-14               	#
+001350,000260:    5451           00005        RAND81            DEC      5          B-14               	#
+001351,000261:    5452           00006        RAND82            DEC      6          B-14               	#
+001352,000262:    5453           00007        RAND83            DEC      7          B-14               	#
+001353,000263:    5454           00002        RAND84            DEC      2          B-14               	#
+001354,000264:    5455           00001        RAND85            DEC      1          B-14               	#
+001355,000265:    5456           00010        RAND86            DEC      8          B-14               	#
+001356,000266:    5457           00011        RAND87            DEC      9          B-14               	#
+001357,000267:    5460           00003        RAND88            DEC      3          B-14               	#
+001358,000268:    5461           00004        RAND89            DEC      4          B-14               	#
+001359,000269:    5462           00000        RAND90            DEC      0          B-14               	#
+001360,000270:    5463           00007        RAND91            DEC      7          B-14               	#
+001361,000271:    5464           00005        RAND92            DEC      5          B-14               	#
+001362,000272:    5465           00006        RAND93            DEC      6          B-14               	#
+001363,000273:    5466           00002        RAND94            DEC      2          B-14               	#
+001364,000274:    5467           00010        RAND95            DEC      8          B-14               	#
+001365,000275:    5470           00001        RAND96            DEC      1          B-14               	#
+001366,000276:    5471           00003        RAND97            DEC      3          B-14               	#
+001367,000277:    5472           00004        RAND98            DEC      4          B-14               	#
+001368,000278:    5473           00011        RAND99            DEC      9          B-14               	#
+001369,000279:    5474           00000        RAND100           DEC      0          B-14               	#
+001370,000280:    5475           00006        RAND101           DEC      6          B-14               	#
+001371,000281:    5476           00007        RAND102           DEC      7          B-14               	#
+001372,000282:    5477           00005        RAND103           DEC      5          B-14               	#
+001373,000283:    5500           00002        RAND104           DEC      2          B-14               	#
+001374,000284:    5501           00001        RAND105           DEC      1          B-14               	#
+001375,000285:    5502           00010        RAND106           DEC      8          B-14               	#
+001376,000286:    5503           00003        RAND107           DEC      3          B-14               	#
+001377,000287:    5504           00004        RAND108           DEC      4          B-14               	#
+001378,000288:    5505           00011        RAND109           DEC      9          B-14               	#
+001379,000289:    5506           00000        RAND110           DEC      0          B-14               	#
+001380,000290:    5507           00007        RAND111           DEC      7          B-14               	#
+001381,000291:    5510           00006        RAND112           DEC      6          B-14               	#
+001382,000292:    5511           00005        RAND113           DEC      5          B-14               	#
+001383,000293:    5512           00002        RAND114           DEC      2          B-14               	#
+001384,000294:    5513           00010        RAND115           DEC      8          B-14               	#
+001385,000295:    5514           00001        RAND116           DEC      1          B-14               	#
+001386,000296:    5515           00003        RAND117           DEC      3          B-14               	#
+001387,000297:    5516           00004        RAND118           DEC      4          B-14               	#
+001388,000298:    5517           00011        RAND119           DEC      9          B-14               	#
+001389,000299:    5520           00000        RAND120           DEC      0          B-14               	#
+001390,000300:    5521           00006        RAND121           DEC      6          B-14               	#
+001391,000301:    5522           00007        RAND122           DEC      7          B-14               	#
+001392,000302:    5523           00005        RAND123           DEC      5          B-14               	#
+001393,000303:    5524           00002        RAND124           DEC      2          B-14               	#
+001394,000304:    5525           00010        RAND125           DEC      8          B-14               	#
+001395,000305:    5526           00001        RAND126           DEC      1          B-14               	#
+001396,000306:    5527           00003        RAND127           DEC      3          B-14               	#
+001397,000307:    5530           00004        RAND128           DEC      4          B-14               	#
+(End of include-file Tables.agc, resuming Main.agc)
+001398,000075: $Ram.agc
+001399,000001: 
+001400,000002:                                                                                         	# The AGC has 2,000 words (4KB) of erasable memory. We only need a fraction for this game!
+001401,000003: 
+001402,000004: 
+001403,000005:                                                                                         	#-------------------------------------------------------------------------
+001404,000006:                                                                                         	# Some variables.
+001405,000007: 
+001406,000008:    0024                                          SETLOC   24                            	#
+001407,000009:    0024                        TIME2             ERASE                                  	#
+001408,000010:    0025                        TIME1             ERASE                                  	#
+001409,000011:    0026                        TIME3             ERASE                                  	#
+001410,000012:    0027                        TIME4             ERASE                                  	#
+001411,000013:    0030                        TIME5             ERASE                                  	#
+001412,000014:    0031                        TIME6             ERASE                                  	#
+001413,000015: 
+001414,000016:    0061                                          SETLOC   61                            	#
+001415,000017: 
+001416,000018:                                                                                         	# Temp variables.
+001417,000019:    0061                        TEMPI             ERASE                                  	#
+001418,000020: 
+001419,000021: 
+001420,000022: 
+001421,000023:    0067                                          SETLOC   67                            	#
+001422,000024:    0067                        NEWJOB            ERASE                                  	#
+001423,000025: 
+001424,000026:    0070                        KEYBUF            ERASE                                  	#
+001425,000027:    0071                        RET_ADR           ERASE                                  	#
+001426,000028: 
+001427,000029:    0072                        ACTIVE            ERASE                                  	#
+001428,000030:    0073                        COUNTER           ERASE                                  	#
+001429,000031:    0074                        CUR_ID            ERASE                                  	#
+001430,000032:    0075                        SEG_OUT           ERASE                                  	#
+001431,000033:    0076                        GM_STATE          ERASE                                  	#
+001432,000034:    0077                        CHK_VALUE          ERASE                                  	#
+001433,000035:    0100                        GM_DONE           ERASE                                  	#
+001434,000036: 
+001435,000037:    0101                        ROW_ID            ERASE                                  	#
+001436,000038:    0102                        COL_ID            ERASE                                  	#
+001437,000039:    0103                        END_ID            ERASE                                  	#
+001438,000040:    0104                        DSKY_OUT          ERASE                                  	#
+001439,000041:    0105                        DIGIT_L           ERASE                                  	#
+001440,000042:    0106                        DIGIT_R           ERASE                                  	#
+001441,000043:    0107                        SIG_ID            ERASE                                  	#
+001442,000044:    0110                        ALM_ID            ERASE                                  	#
+001443,000045: 
+001444,000046:    0111                        ENTER_IDX          ERASE                                  	#
+001445,000047:    0112                        CHECK_IDX          ERASE                                  	#
+001446,000048:    0113                        SIGNAL            ERASE                                  	# ARRAY OF FIVE DIGITS TO GUESS
+001447,000049:    0114                        SIGNAL1           ERASE                                  	#
+001448,000050:    0115                        SIGNAL2           ERASE                                  	#
+001449,000051:    0116                        SIGNAL3           ERASE                                  	#
+001450,000052:    0117                        SIGNAL4           ERASE                                  	#
+001451,000053: 
+001452,000054:    0120                        ZERO_IDX          ERASE                                  	#
+001453,000055:    0121                        NUM_WIN           ERASE                                  	#
+001454,000056: 
+001455,000057:    0122                        RIGHT_TMP          ERASE                                  	#
+001456,000058:    0123                        ALMOST_TMP          ERASE                                  	#
+001457,000059:    0124                        FIRST_RUN          ERASE                                  	#
+001458,000060: 
+001459,000061:    0125                        GUESS_NOW          ERASE                                  	#
+001460,000062:    0126                        SIG_NOW           ERASE                                  	#
+001461,000063:    0127                        SRC_IDX           ERASE                                  	# Source of history copy index
+001462,000064:    0130                        DES_IDX           ERASE                                  	# Destination of history copy index
+001463,000065: 
+001464,000066:    0131                        TURN_TEN                                                 	#
+001465,000067:    0131                        VALUES            ERASE                                  	# ARRAY OF VALUES TO DISPLAY ON DSKY
+001466,000068: 
+001467,000069:    0132                        TURN_DIG          ERASE                                  	#
+001468,000070:    0133                        RIGHT_TEN          ERASE                                  	#
+001469,000071:    0134                        RIGHT_DIG          ERASE                                  	#
+001470,000072:    0135                        ALMOST_TEN          ERASE                                  	#
+001471,000073:    0136                        ALMOST_DIG          ERASE                                  	#
+001472,000074:    0137                        NUM_GRID          ERASE                                  	#
+001473,000075:    0140                        NUM_1             ERASE                                  	#
+001474,000076:    0141                        NUM_2             ERASE                                  	#
+001475,000077:    0142                        NUM_3             ERASE                                  	#
+001476,000078:    0143                        NUM_4             ERASE                                  	#
+001477,000079:    0144                        CHK_GRID          ERASE                                  	#
+001478,000080:    0145                        NUM_6             ERASE                                  	#
+001479,000081:    0146                        NUM_7             ERASE                                  	#
+001480,000082:    0147                        NUM_8             ERASE                                  	#
+001481,000083:    0150                        NUM_9             ERASE                                  	#
+001482,000084:    0151                        NUM_10            ERASE                                  	#
+001483,000085:    0152                        NUM_11            ERASE                                  	#
+001484,000086:    0153                        NUM_12            ERASE                                  	#
+001485,000087:    0154                        NUM_13            ERASE                                  	#
+001486,000088:    0155                        NUM_14            ERASE                                  	#
+001487,000089: 
+001488,000090: 
+001489,000091:    0156                        HIS_IDX           ERASE                                  	# index in array below to start drawing historical guesses (player will be able to scroll through)
+001490,000092:    0157                        MAX_IDX           ERASE                                  	#
+001491,000093: 
+001492,000094:    0160                        PREV_GUESS          ERASE                                  	#DEC 45, 9 previous guesses x 5 digits
+001493,000095:    0161                        PREV_1            ERASE                                  	#
+001494,000096:    0162                        PREV_2            ERASE                                  	#
+001495,000097:    0163                        PREV_3            ERASE                                  	#
+001496,000098:    0164                        PREV_4            ERASE    +70                           	#
+001497,000099: 
+(End of include-file Ram.agc, resuming Main.agc)
+
+
+Usage Table for Fixed-Memory Banks
+----------------------------------
+Bank 00:  0000/2000 words used.
+Bank 01:  0000/2000 words used.
+Bank 02:  1531/2000 words used.
+Bank 03:  0000/2000 words used.
+Bank 04:  0000/2000 words used.
+Bank 05:  0000/2000 words used.
+Bank 06:  0000/2000 words used.
+Bank 07:  0000/2000 words used.
+Bank 10:  0000/2000 words used.
+Bank 11:  0000/2000 words used.
+Bank 12:  0000/2000 words used.
+Bank 13:  0000/2000 words used.
+Bank 14:  0000/2000 words used.
+Bank 15:  0000/2000 words used.
+Bank 16:  0000/2000 words used.
+Bank 17:  0000/2000 words used.
+Bank 20:  0000/2000 words used.
+Bank 21:  0000/2000 words used.
+Bank 22:  0000/2000 words used.
+Bank 23:  0000/2000 words used.
+Bank 24:  0000/2000 words used.
+Bank 25:  0000/2000 words used.
+Bank 26:  0000/2000 words used.
+Bank 27:  0000/2000 words used.
+Bank 30:  0000/2000 words used.
+Bank 31:  0000/2000 words used.
+Bank 32:  0000/2000 words used.
+Bank 33:  0000/2000 words used.
+Bank 34:  0000/2000 words used.
+Bank 35:  0000/2000 words used.
+Bank 36:  0000/2000 words used.
+Bank 37:  0000/2000 words used.
+Bank 40:  0000/2000 words used.
+Bank 41:  0000/2000 words used.
+Bank 42:  0000/2000 words used.
+Bank 43:  0000/2000 words used.
+
+
+Symbol Table
+------------
+     1:   $17             0017  		     2:   $3              0003  		     3:   $4              0004  		     4:   $5              0005  
+     5:   $6              0006  		     6:   $7              0007  		     7:   A            0000000  		     8:   ACTIVE          0072  
+     9:   ALL5_CHK        4202  		    10:   ALMOST_DIG      0136  		    11:   ALMOST_TEN      0135  		    12:   ALMOST_TMP      0123  
+    13:   ALM_ID          0110  		    14:   ARUPT        0000010  		    15:   BANKRUPT     0000016  		    16:   BBANK        0000006  
+    17:   BIT15           5073  		    18:   BIT5            5116  		    19:   BOT23           5221  		    20:   BOT45           5222  
+    21:   BRUPT        0000017  		    22:   CALCLEFT        4673  		    23:   CANREAD         4770  		    24:   CANTSCROLL      4601  
+    25:   CH10         0000010  		    26:   CH11         0000011  		    27:   CH12         0000012  		    28:   CH13         0000013  
+    29:   CH15         0000015  		    30:   CH32         0000032  		    31:   CHECKGUESS      4120  		    32:   CHECKKEY        5014  
+    33:   CHECKNEW        4373  		    34:   CHECK_IDX       0112  		    35:   CHKSTATE        4075  		    36:   CHK_CNT         4142  
+    37:   CHK_GRID        0144  		    38:   CHK_LOOP        4130  		    39:   CHK_VALUE       0077  		    40:   CLEARBTN        5102  
+    41:   CLEARGUESS      4533  		    42:   CLR_DIGIT       4613  		    43:   CLR_DONE        4344  		    44:   CLR_HIS         4330  
+    45:   CLR_LOOP        4332  		    46:   COL_ID          0102  		    47:   COL_STRT        5252  		    48:   COL_STRT2       5253  
+    49:   COL_STRT3       5254  		    50:   COL_STRT4       5255  		    51:   COL_STRT5       5256  		    52:   COPY_DONE       4514  
+    53:   COPY_LOOP       4500  		    54:   COUNTER         0073  		    55:   CP_ST_IDX       5117  		    56:   CUR_ID          0074  
+    57:   CYL          0000022  		    58:   CYR          0000020  		    59:   DEC1            5224  		    60:   DEC10           5235  
+    61:   DEC11           5236  		    62:   DEC12           5237  		    63:   DEC13           5240  		    64:   DEC14           5241  
+    65:   DEC15           5242  		    66:   DEC16           5243  		    67:   DEC17           5244  		    68:   DEC18           5245  
+    69:   DEC19           5246  		    70:   DEC2            5225  		    71:   DEC3            5226  		    72:   DEC4            5227  
+    73:   DEC5            5230  		    74:   DEC6            5231  		    75:   DEC7            5232  		    76:   DEC8            5233  
+    77:   DEC9            5234  		    78:   DES_IDX         0130  		    79:   DIDLEFT         4713  		    80:   DID_LOSE        4754  
+    81:   DID_WIN         4211  		    82:   DIGITS          5223  		    83:   DIGIT_L         0105  		    84:   DIGIT_R         0106  
+    85:   DISPALL         4631  		    86:   DISPNUM         4653  		    87:   DISP_HIST       4542  		    88:   DISP_LOOP       4550  
+    89:   DIS_DONE        4564  		    90:   DONE15          4650  		    91:   DONE_TURNS      4451  		    92:   DO_TURNS        4376  
+    93:   DSKY_OUT        0104  		    94:   DSP0            5124  		    95:   DSP1            5125  		    96:   DSP2            5126  
+    97:   DSP3            5127  		    98:   DSP4            5130  		    99:   DSP5            5131  		   100:   DSP6            5132  
+   101:   DSP7            5133  		   102:   DSP8            5134  		   103:   DSP9            5135  		   104:   DSPBLANK        5123  
+   105:   EBANK        0000003  		   106:   EDOP         0000023  		   107:   ENDKYCK         5061  		   108:   ENDLOOP1        4172  
+   109:   END_ID          0103  		   110:   END_SLOOP       4162  		   111:   ENTER_IDX       0111  		   112:   EXITRUPT        4774  
+   113:   FBANK        0000004  		   114:   FIRST_RUN       0124  		   115:   FOURTEEN        5112  		   116:   GM_DONE         0100  
+   117:   GM_STATE        0076  		   118:   GM_TIME         5100  		   119:   GRID_C0         5265  		   120:   GRID_C1         5266  
+   121:   GRID_C10        5277  		   122:   GRID_C11        5300  		   123:   GRID_C12        5301  		   124:   GRID_C13        5302  
+   125:   GRID_C14        5303  		   126:   GRID_C2         5267  		   127:   GRID_C3         5270  		   128:   GRID_C4         5271  
+   129:   GRID_C5         5272  		   130:   GRID_C6         5273  		   131:   GRID_C7         5274  		   132:   GRID_C8         5275  
+   133:   GRID_C9         5276  		   134:   GRID_CM1        5264  		   135:   GRID_CM2        5263  		   136:   GRID_CM3        5262  
+   137:   GRID_CM4        5261  		   138:   GRID_CM5        5260  		   139:   GRID_COL        5257  		   140:   GRID_R0         5312  
+   141:   GRID_R1         5313  		   142:   GRID_R10        5324  		   143:   GRID_R11        5325  		   144:   GRID_R12        5326  
+   145:   GRID_R13        5327  		   146:   GRID_R14        5330  		   147:   GRID_R2         5314  		   148:   GRID_R3         5315  
+   149:   GRID_R4         5316  		   150:   GRID_R5         5317  		   151:   GRID_R6         5320  		   152:   GRID_R7         5321  
+   153:   GRID_R8         5322  		   154:   GRID_R9         5323  		   155:   GRID_RM1        5311  		   156:   GRID_RM2        5310  
+   157:   GRID_RM3        5307  		   158:   GRID_RM4        5306  		   159:   GRID_RM5        5305  		   160:   GRID_ROW        5304  
+   161:   GUESS_NOW       0125  		   162:   HIS_IDX         0156  		   163:   HS_LS_IDX       5120  		   164:   HS_MX_IDX       5121  
+   165:   INIT            4054  		   166:   INIT2           4056  		   167:   INT_LOOP        4277  		   168:   IODELAY         4723  
+   169:   IODELAYT        4722  		   170:   IS_ALMOST       4160  		   171:   IS_GM_OVR       4452  		   172:   IS_RIGHT        4171  
+   173:   KEYBUF          0070  		   174:   KEYRUPT1        4757  		   175:   KEYTABL         5020  		   176:   L            0000001  
+   177:   LEFTRIGHT       5136  		   178:   LOW5            5074  		   179:   LR1             5137  		   180:   LR10            5150  
+   181:   LR11            5151  		   182:   LR12            5152  		   183:   LR13            5153  		   184:   LR14            5154  
+   185:   LR15            5155  		   186:   LR16            5156  		   187:   LR17            5157  		   188:   LR18            5160  
+   189:   LR19            5161  		   190:   LR2             5140  		   191:   LR20            5162  		   192:   LR3             5141  
+   193:   LR4             5142  		   194:   LR5             5143  		   195:   LR6             5144  		   196:   LR7             5145  
+   197:   LR8             5146  		   198:   LR9             5147  		   199:   LRUPT        0000011  		   200:   MAINLOOP        4074  
+   201:   MASK128         5107  		   202:   MASK15          5110  		   203:   MAX_IDX         0157  		   204:   MID12           5216  
+   205:   MID34           5217  		   206:   MID5BOT1        5220  		   207:   NEG1            5113  		   208:   NEG2            5114  
+   209:   NEG5            5115  		   210:   NEG_ONE         5104  		   211:   NEWJOB          0067  		   212:   NEW_GAME        4240  
+   213:   NOKEY           5072  		   214:   NONE_LEFT       4426  		   215:   NOTYET          4464  		   216:   NOT_WON         4422  
+   217:   NOT_ZERO        4361  		   218:   NOUNLR          5212  		   219:   NO_CLR          4630  		   220:   NO_DUPS         4314  
+   221:   NO_WIN          4235  		   222:   NUM_1           0140  		   223:   NUM_10          0151  		   224:   NUM_11          0152  
+   225:   NUM_12          0153  		   226:   NUM_13          0154  		   227:   NUM_14          0155  		   228:   NUM_2           0141  
+   229:   NUM_3           0142  		   230:   NUM_4           0143  		   231:   NUM_6           0145  		   232:   NUM_7           0146  
+   233:   NUM_8           0147  		   234:   NUM_9           0150  		   235:   NUM_GRID        0137  		   236:   NUM_PRESS       4347  
+   237:   NUM_WIN         0121  		   238:   O37774          5075  		   239:   O37777          5076  		   240:   OPP_ERR         5122  
+   241:   OUTPUT          4715  		   242:   PICKED_ALL      4325  		   243:   PREV_1          0161  		   244:   PREV_2          0162  
+   245:   PREV_3          0163  		   246:   PREV_4          0164  		   247:   PREV_GUESS      0160  		   248:   Q            0000002  
+   249:   QRUPT        0000012  		   250:   RAND1           5331  		   251:   RAND10          5342  		   252:   RAND100         5474  
+   253:   RAND101         5475  		   254:   RAND102         5476  		   255:   RAND103         5477  		   256:   RAND104         5500  
+   257:   RAND105         5501  		   258:   RAND106         5502  		   259:   RAND107         5503  		   260:   RAND108         5504  
+   261:   RAND109         5505  		   262:   RAND11          5343  		   263:   RAND110         5506  		   264:   RAND111         5507  
+   265:   RAND112         5510  		   266:   RAND113         5511  		   267:   RAND114         5512  		   268:   RAND115         5513  
+   269:   RAND116         5514  		   270:   RAND117         5515  		   271:   RAND118         5516  		   272:   RAND119         5517  
+   273:   RAND12          5344  		   274:   RAND120         5520  		   275:   RAND121         5521  		   276:   RAND122         5522  
+   277:   RAND123         5523  		   278:   RAND124         5524  		   279:   RAND125         5525  		   280:   RAND126         5526  
+   281:   RAND127         5527  		   282:   RAND128         5530  		   283:   RAND13          5345  		   284:   RAND14          5346  
+   285:   RAND15          5347  		   286:   RAND16          5350  		   287:   RAND17          5351  		   288:   RAND18          5352  
+   289:   RAND19          5353  		   290:   RAND2           5332  		   291:   RAND20          5354  		   292:   RAND21          5355  
+   293:   RAND22          5356  		   294:   RAND23          5357  		   295:   RAND24          5360  		   296:   RAND25          5361  
+   297:   RAND26          5362  		   298:   RAND27          5363  		   299:   RAND28          5364  		   300:   RAND29          5365  
+   301:   RAND3           5333  		   302:   RAND30          5366  		   303:   RAND31          5367  		   304:   RAND32          5370  
+   305:   RAND33          5371  		   306:   RAND34          5372  		   307:   RAND35          5373  		   308:   RAND36          5374  
+   309:   RAND37          5375  		   310:   RAND38          5376  		   311:   RAND39          5377  		   312:   RAND4           5334  
+   313:   RAND40          5400  		   314:   RAND41          5401  		   315:   RAND42          5402  		   316:   RAND43          5403  
+   317:   RAND44          5404  		   318:   RAND45          5405  		   319:   RAND46          5406  		   320:   RAND47          5407  
+   321:   RAND48          5410  		   322:   RAND49          5411  		   323:   RAND5           5335  		   324:   RAND50          5412  
+   325:   RAND51          5413  		   326:   RAND52          5414  		   327:   RAND53          5415  		   328:   RAND54          5416  
+   329:   RAND55          5417  		   330:   RAND56          5420  		   331:   RAND57          5421  		   332:   RAND58          5422  
+   333:   RAND59          5423  		   334:   RAND6           5336  		   335:   RAND60          5424  		   336:   RAND61          5425  
+   337:   RAND62          5426  		   338:   RAND63          5427  		   339:   RAND64          5430  		   340:   RAND65          5431  
+   341:   RAND66          5432  		   342:   RAND67          5433  		   343:   RAND68          5434  		   344:   RAND69          5435  
+   345:   RAND7           5337  		   346:   RAND70          5436  		   347:   RAND71          5437  		   348:   RAND72          5440  
+   349:   RAND73          5441  		   350:   RAND74          5442  		   351:   RAND75          5443  		   352:   RAND76          5444  
+   353:   RAND77          5445  		   354:   RAND78          5446  		   355:   RAND79          5447  		   356:   RAND8           5340  
+   357:   RAND80          5450  		   358:   RAND81          5451  		   359:   RAND82          5452  		   360:   RAND83          5453  
+   361:   RAND84          5454  		   362:   RAND85          5455  		   363:   RAND86          5456  		   364:   RAND87          5457  
+   365:   RAND88          5460  		   366:   RAND89          5461  		   367:   RAND9           5341  		   368:   RAND90          5462  
+   369:   RAND91          5463  		   370:   RAND92          5464  		   371:   RAND93          5465  		   372:   RAND94          5466  
+   373:   RAND95          5467  		   374:   RAND96          5470  		   375:   RAND97          5471  		   376:   RAND98          5472  
+   377:   RAND99          5473  		   378:   RANDOM          5062  		   379:   RESETALL        4104  		   380:   RESETBTN        5103  
+   381:   RESETEND        4117  		   382:   RESETLOOP       4106  		   383:   RESTART         4000  		   384:   RESUME          4736  
+   385:   RET_ADR         0071  		   386:   RIGHT_DIG       0134  		   387:   RIGHT_TEN       0133  		   388:   RIGHT_TMP       0122  
+   389:   ROW_ID          0101  		   390:   ROW_STRT        5247  		   391:   ROW_STRT2       5250  		   392:   ROW_STRT3       5251  
+   393:   S77777          5077  		   394:   SAMPTIME     0000013  		   395:   SCROLLDOWN      4602  		   396:   SCROLL_UP       4565  
+   397:   SCR_UPDT        4575  		   398:   SEGCODE         5210  		   399:   SEGLOOP         4637  		   400:   SEG_0           5163  
+   401:   SEG_1           5164  		   402:   SEG_10          5175  		   403:   SEG_11          5176  		   404:   SEG_12          5177  
+   405:   SEG_13          5200  		   406:   SEG_14          5201  		   407:   SEG_15          5202  		   408:   SEG_16          5203  
+   409:   SEG_17          5204  		   410:   SEG_18          5205  		   411:   SEG_19          5206  		   412:   SEG_2           5165  
+   413:   SEG_20          5207  		   414:   SEG_3           5166  		   415:   SEG_4           5167  		   416:   SEG_5           5170  
+   417:   SEG_6           5171  		   418:   SEG_7           5172  		   419:   SEG_8           5173  		   420:   SEG_9           5174  
+   421:   SEG_LOOP        4144  		   422:   SEG_OUT         0075  		   423:   SIGNAL          0113  		   424:   SIGNAL1         0114  
+   425:   SIGNAL2         0115  		   426:   SIGNAL3         0116  		   427:   SIGNAL4         0117  		   428:   SIG_ID          0107  
+   429:   SIG_LOOP        4272  		   430:   SIG_NOW         0126  		   431:   SKIPLEFT        4711  		   432:   SR           0000021  
+   433:   SRC_IDX         0127  		   434:   STAINIT         5227  		   435:   STAINPUT        5223  		   436:   STALOSE         5226  
+   437:   STATUSTBL       4077  		   438:   STAWAIT         5224  		   439:   STAWIN          5225  		   440:   STOREGUESS      4465  
+   441:   T3RUPT          4733  		   442:   T4RUPT          4742  		   443:   TEMPI           0061  		   444:   TEN             5101  
+   445:   TENS_ZERO       4414  		   446:   TIME1           0025  		   447:   TIME2           0024  		   448:   TIME3           0026  
+   449:   TIME4           0027  		   450:   TIME5           0030  		   451:   TIME6           0031  		   452:   TOP1            5213  
+   453:   TOP23           5214  		   454:   TOP45           5215  		   455:   TURN_DIG        0132  		   456:   TURN_TEN        0131  
+   457:   TWENTY          5105  		   458:   TWENTY1         5106  		   459:   TWO56           5111  		   460:   UPDATE_WIN      4454  
+   461:   VALUES          0131  		   462:   VERBLR          5211  		   463:   WAITKEY         5003  		   464:   WAITMORE        5013  
+   465:   WRAP_TEN        4407  		   466:   YES_FIRST       4071  		   467:   Z            0000005  		   468:   ZERO         0000007  
+   469:   ZEROES       0000007  		   470:   ZERO_IDX        0120  		   471:   ZERO_PRESS      4356  		   472:   ZRUPT        0000015  
+
+Unresolved symbols:  0
+Fatal errors:  0
+Warnings:  0
+Removing the duplicated lines... 
+
+Bugger word 64516 at 02,3533.
+Bugger word 64001 at 03,2002.
+Bugger word 73776 at 00,2002.
+Bugger word 73777 at 01,2002.
+Bugger word 74002 at 04,2002.
+Bugger word 74003 at 05,2002.
+Bugger word 74004 at 06,2002.
+Bugger word 74005 at 07,2002.
+Bugger word 74006 at 10,2002.
+Bugger word 74007 at 11,2002.
+Bugger word 74010 at 12,2002.
+Bugger word 74011 at 13,2002.
+Bugger word 74012 at 14,2002.
+Bugger word 74013 at 15,2002.
+Bugger word 74014 at 16,2002.
+Bugger word 74015 at 17,2002.
+Bugger word 74016 at 20,2002.
+Bugger word 74017 at 21,2002.
+Bugger word 74020 at 22,2002.
+Bugger word 74021 at 23,2002.
+Bugger word 74022 at 24,2002.
+Bugger word 74023 at 25,2002.
+Bugger word 74024 at 26,2002.
+Bugger word 74025 at 27,2002.
+Bugger word 74026 at 30,2002.
+Bugger word 74027 at 31,2002.
+Bugger word 74030 at 32,2002.
+Bugger word 74031 at 33,2002.
+Bugger word 74032 at 34,2002.
+Bugger word 74033 at 35,2002.
+Bugger word 74034 at 36,2002.
+Bugger word 74035 at 37,2002.
+Bugger word 74036 at 40,2002.
+Bugger word 74037 at 41,2002.
+Bugger word 74040 at 42,2002.
+Bugger word 74041 at 43,2002.

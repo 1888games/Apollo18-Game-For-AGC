@@ -1,0 +1,99 @@
+
+# The AGC has 2,000 words (4KB) of erasable memory. We only need a fraction for this game!
+
+
+#-------------------------------------------------------------------------
+# Some variables.
+
+		SETLOC	24
+TIME2		ERASE
+TIME1		ERASE
+TIME3		ERASE
+TIME4		ERASE
+TIME5		ERASE
+TIME6		ERASE
+
+		SETLOC	61
+
+# Temp variables.
+TEMPI		ERASE
+
+
+
+		SETLOC	67
+NEWJOB		ERASE
+
+KEYBUF          ERASE
+RET_ADR         ERASE
+
+ACTIVE          ERASE
+COUNTER         ERASE
+CUR_ID          ERASE
+SEG_OUT         ERASE
+GM_STATE        ERASE
+CHK_VALUE       ERASE
+GM_DONE         ERASE
+
+ROW_ID          ERASE
+COL_ID          ERASE
+END_ID          ERASE
+DSKY_OUT        ERASE
+DIGIT_L         ERASE
+DIGIT_R         ERASE
+SIG_ID		ERASE
+ALM_ID          ERASE
+
+ENTER_IDX	ERASE
+CHECK_IDX	ERASE
+SIGNAL		ERASE # ARRAY OF FIVE DIGITS TO GUESS
+SIGNAL1		ERASE
+SIGNAL2		ERASE
+SIGNAL3		ERASE
+SIGNAL4		ERASE
+
+ZERO_IDX	ERASE
+NUM_WIN		ERASE
+
+RIGHT_TMP	ERASE
+ALMOST_TMP	ERASE
+FIRST_RUN       ERASE
+
+GUESS_NOW	ERASE
+SIG_NOW		ERASE
+SRC_IDX		ERASE  # Source of history copy index
+DES_IDX		ERASE  # Destination of history copy index
+	
+TURN_TEN
+VALUES          ERASE  # ARRAY OF VALUES TO DISPLAY ON DSKY
+
+TURN_DIG	ERASE  
+RIGHT_TEN	ERASE
+RIGHT_DIG	ERASE
+ALMOST_TEN	ERASE
+ALMOST_DIG	ERASE
+NUM_GRID	ERASE
+NUM_1		ERASE
+NUM_2		ERASE
+NUM_3		ERASE
+NUM_4		ERASE
+CHK_GRID	ERASE
+NUM_6		ERASE
+NUM_7		ERASE
+NUM_8		ERASE
+NUM_9		ERASE
+NUM_10		ERASE
+NUM_11		ERASE
+NUM_12		ERASE
+NUM_13		ERASE
+NUM_14		ERASE
+
+
+HIS_IDX		ERASE	# index in array below to start drawing historical guesses (player will be able to scroll through)
+MAX_IDX		ERASE
+
+PREV_GUESS	ERASE  #DEC 45, 9 previous guesses x 5 digits
+PREV_1		ERASE
+PREV_2		ERASE
+PREV_3		ERASE
+PREV_4		ERASE +70
+
